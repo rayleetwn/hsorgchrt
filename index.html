@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>航昇關係企業組織圖 - 專業版</title>
+<title>航昇關係企業組織圖 - 精簡版</title>
 <style>
   :root {
     --accent-blue: #3b6fba;
     --bg-dark: #0f1117;
-    /* 全局字體基礎大小已提升 */
+    /* 全局字體基礎大小 */
     --base-font-size: 34px; 
-    --title-font-size: 28px;
+    --title-font-size: 26px; /* 微調職稱字體 */
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,105 +19,107 @@
     background: var(--bg-dark);
     font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
     height: 100vh;
+    width: 100vw;
     overflow: hidden;
     color: #e2e4f0;
+    touch-action: none;
   }
 
-  /* ── 工具列 ── */
+  /* 工具列 */
   .toolbar {
-    position: fixed; top: 20px; left: 20px;
-    z-index: 2000;
-    display: flex; gap: 15px; align-items: center;
-    background: rgba(26, 29, 39, 0.8);
-    padding: 15px 25px;
+    position: fixed; top: 15px; left: 15px;
+    z-index: 9999;
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(26, 29, 39, 0.9);
+    padding: 10px 20px;
     border-radius: 50px;
     border: 1px solid #2e3347;
     backdrop-filter: blur(10px);
   }
   .search-input {
-    background: #0f1117;
-    border: 2px solid #3b6fba;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    outline: none;
-    font-size: 20px;
-    width: 250px;
+    background: #0f1117; border: 2px solid #3b6fba; color: white;
+    padding: 8px 15px; border-radius: 25px; font-size: 18px; width: 180px;
   }
   .btn {
-    background: #2e3347;
-    color: #c8cad4;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 18px;
+    background: #2e3347; color: #c8cad4; border: none;
+    padding: 8px 15px; border-radius: 25px; cursor: pointer; font-size: 16px;
   }
 
-  /* ── 畫布 ── */
-  #viewport { width: 100vw; height: 100vh; cursor: grab; display: flex; align-items: center; justify-content: center; }
-  #canvas { transform-origin: 0 0; will-change: transform; padding: 600px; }
+  /* 抓取容器 */
+  #viewport {
+    width: 100vw; height: 100vh;
+    cursor: grab;
+    overflow: hidden;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #viewport:active { cursor: grabbing; }
 
-  .company-title { text-align: center; margin-bottom: 80px; pointer-events: none; }
-  .company-title h1 { font-size: 52px; color: #e2e4f0; text-shadow: 0 0 15px rgba(226, 228, 240, 0.3); }
-  .company-title p { font-size: 28px; color: #565869; margin-top: 15px; }
+  #canvas {
+    transform-origin: center center;
+    position: absolute;
+    will-change: transform;
+    padding: 1000px; /* 供拖拽空間 */
+    display: flex; flex-direction: column; align-items: center;
+  }
 
-  /* ── 節點樣式 ── */
+  .company-title { text-align: center; margin-bottom: 60px; pointer-events: none; }
+  .company-title h1 { font-size: 48px; color: #e2e4f0; }
+  .company-title p { font-size: 26px; color: #565869; margin-top: 10px; }
+
+  /* ── 節點樣式優化 (Bubble Size) ── */
   .card {
-    border-radius: 12px;
-    border: 2px solid;
-    padding: 12px 24px; /* 縮減 Padding 讓節點更精練 */
+    border-radius: 10px; border: 2px solid;
+    /* 大幅縮減 Padding 讓 Bubble 變小 */
+    padding: 8px 16px; 
     text-align: center;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    background: #1a1d27;
-    min-width: 160px;
+    cursor: pointer; white-space: nowrap;
+    background: #1a1d27; 
+    min-width: 140px; /* 縮减最小寬度 */
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-  .card:hover { transform: translateY(-5px); box-shadow: var(--hover-glow); filter: brightness(1.2); }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 0 15px rgba(59, 111, 186, 0.4); }
   
-  .card-name  { font-size: var(--base-font-size); font-weight: 600; line-height: 1.2; }
-  .card-title { font-size: var(--title-font-size); margin-top: 6px; opacity: 0.8; }
-  .card-arrow { font-size: 24px; margin-top: 10px; transition: 0.3s; }
+  .card-name  { font-size: var(--base-font-size); font-weight: 600; line-height: 1.1; }
+  .card-title { font-size: var(--title-font-size); margin-top: 4px; opacity: 0.8; }
 
-  .c-top { border-color:#3b6fba; --hover-glow: 0 0 25px rgba(59, 111, 186, 0.7); }
-  .c-dept { border-color:#5ec9a8; --hover-glow: 0 0 25px rgba(94, 201, 168, 0.7); }
-  .c-staff { border-color:#6d5dfc; --hover-glow: 0 0 25px rgba(109, 93, 252, 0.7); }
+  /* 顏色設定 */
+  .c-top { border-color:#3b6fba; }
+  .c-dept { border-color:#5ec9a8; }
+  .c-staff { border-color:#6d5dfc; }
   .c-mem { border-color:#4a5064; background: #11131a; }
 
-  /* 幕僚單位移至右側 */
+  /* 排序與間距 */
   .h-row { display: flex; justify-content: center; position: relative; gap: 40px; }
   .node-col[data-staff="true"] { order: 99; }
 
-  .v-line { width: 2px; height: 40px; background: #343a4e; align-self: center; }
+  /* 連線間距優化 */
+  .v-line { width: 2px; height: 30px; /* 縮短垂直連線 */ background: #343a4e; align-self: center; }
   .h-row::before {
     content: ''; position: absolute; top: 0; height: 2px; background: #343a4e;
     left: var(--hl); width: var(--hw);
   }
 
-  .children-wrap { overflow: hidden; max-height: 8000px; transition: 0.4s; }
+  .children-wrap { overflow: hidden; transition: max-height 0.4s; }
   .children-wrap.collapsed { max-height: 0; opacity: 0; }
 
   /* 資訊面板 */
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2999; display:none; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9000; display:none; }
   .overlay.show { display: block; }
   .info-panel {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #1a1d27; border: 2px solid #3b6fba; border-radius: 25px;
-    padding: 40px; z-index: 3000; width: 450px; visibility: hidden; opacity: 0; transition: 0.3s;
+    background: #1a1d27; border: 2px solid #3b6fba; border-radius: 20px;
+    padding: 30px; z-index: 9001; width: 400px; display: none;
   }
-  .info-panel.show { visibility: visible; opacity: 1; }
-  #pname { font-size: 44px; color: #fff; margin-bottom: 10px; }
-  #ptitle { font-size: 30px; color: #3b6fba; }
+  .info-panel.show { display: block; }
 </style>
 </head>
 <body>
 
 <div class="toolbar">
-  <input type="text" class="search-input" id="searchInput" placeholder="搜尋姓名/職稱..." onkeyup="handleSearch(event)">
-  <button class="btn" onclick="expandAll()">全部展開</button>
-  <button class="btn" onclick="collapseAll()">全部收合</button>
+  <input type="text" class="search-input" id="searchInput" placeholder="搜尋姓名..." onkeyup="handleSearch(event)">
   <button class="btn" onclick="resetView()">重置視角</button>
+  <button class="btn" onclick="expandAll()">全部展開</button>
 </div>
 
 <div id="viewport">
@@ -132,12 +134,13 @@
 
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="info-panel" id="panel">
-  <h2 id="pname"></h2>
-  <p id="ptitle"></p>
+  <h2 id="pname" style="font-size:40px; color:#fff;"></h2>
+  <p id="ptitle" style="font-size:28px; color:#3b6fba; margin-top:8px;"></p>
+  <button class="btn" style="margin-top:20px; width:100%;" onclick="closePanel()">關閉</button>
 </div>
 
 <script>
-// 此處 DATA 沿用拆分後的數據
+// 此處 DATA 沿用
 const DATA = [
   { id:'board', name:'董事會', color:'c-top', noPanel:true, children:[
     { id:'chairman', name:'魏程師', title:'董事長', color:'c-top', children:[
@@ -164,12 +167,18 @@ const DATA = [
   ]}
 ];
 
-const state = { scale: 0.45, translateX: 0, translateY: 0 };
+const state = { 
+    scale: 0.5, /* 初始化縮放調大一點點 */
+    x: 0, 
+    y: 0, 
+    isDragging: false, 
+    lastMouseX: 0, 
+    lastMouseY: 0 
+};
 
 function buildNode(node, container) {
   const col = document.createElement('div');
   col.className = 'node-col';
-  col.dataset.id = node.id;
   if (node.isStaff) col.dataset.staff = "true";
 
   const card = document.createElement('div');
@@ -180,7 +189,6 @@ function buildNode(node, container) {
   card.innerHTML = `
     <div class="card-name">${node.name}</div>
     ${node.title ? `<div class="card-title">${node.title}</div>` : ''}
-    ${hasKids ? `<div class="card-arrow">▾</div>` : ''}
   `;
 
   card.onclick = (e) => {
@@ -204,67 +212,42 @@ function buildNode(node, container) {
   container.appendChild(col);
 }
 
-function toggleNode(id) {
-  const wrap = document.querySelector(`.children-wrap[data-for="${id}"]`);
-  wrap.classList.toggle('collapsed');
-  setTimeout(updateLines, 50);
+// 核心拖拽與縮放
+const viewport = document.getElementById('viewport');
+const canvas = document.getElementById('canvas');
+
+viewport.onmousedown = e => {
+  if (e.target.closest('.toolbar') || e.target.closest('.info-panel')) return;
+  state.isDragging = true;
+  state.lastMouseX = e.clientX;
+  state.lastMouseY = e.clientY;
+};
+
+window.onmousemove = e => {
+  if (!state.isDragging) return;
+  const dx = e.clientX - state.lastMouseX;
+  const dy = e.clientY - state.lastMouseY;
+  state.x += dx;
+  state.y += dy;
+  state.lastMouseX = e.clientX;
+  state.lastMouseY = e.clientY;
+  updateTransform();
+};
+
+window.onmouseup = () => state.isDragging = false;
+
+viewport.onwheel = e => {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 0.9 : 1.1;
+  state.scale *= factor;
+  updateTransform();
+};
+
+function updateTransform() {
+  canvas.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+  updateLines();
 }
 
 function updateLines() {
   document.querySelectorAll('.h-row').forEach(row => {
-    const cols = Array.from(row.children).filter(c => c.classList.contains('node-col'));
-    if (cols.length < 2) return;
-    const cards = cols.map(c => c.querySelector('.card').getBoundingClientRect());
-    const parentRect = row.getBoundingClientRect();
-    const left = (cards[0].left + cards[0].width/2 - parentRect.left) / state.scale;
-    const right = (cards[cards.length-1].left + cards[cards.length-1].width/2 - parentRect.left) / state.scale;
-    row.style.setProperty('--hl', left + 'px');
-    row.style.setProperty('--hw', (right - left) + 'px');
-  });
-}
-
-function handleSearch(e) {
-    const val = e.target.value.trim().toLowerCase();
-    document.querySelectorAll('.card').forEach(c => c.classList.remove('highlight'));
-    if (!val) return;
-    document.querySelectorAll('.card').forEach(c => {
-        if (c.textContent.toLowerCase().includes(val)) {
-            c.classList.add('highlight');
-        }
-    });
-}
-
-function showPanel(node) {
-  document.getElementById('pname').textContent = node.name;
-  document.getElementById('ptitle').textContent = node.title || '';
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('panel').classList.add('show');
-}
-function closePanel() {
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('panel').classList.remove('show');
-}
-
-// 縮放平移邏輯
-const viewport = document.getElementById('viewport');
-const canvas = document.getElementById('canvas');
-viewport.onwheel = e => {
-  e.preventDefault();
-  state.scale *= (e.deltaY > 0 ? 0.9 : 1.1);
-  apply();
-};
-
-function apply() {
-  canvas.style.transform = `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`;
-  updateLines();
-}
-
-function resetView() {
-    state.scale = 0.45; state.translateX = 0; state.translateY = 0; apply();
-}
-
-DATA.forEach(n => buildNode(n, document.getElementById('tree')));
-setTimeout(apply, 200);
-</script>
-</body>
-</html>
+    const cols = Array.from(row.
