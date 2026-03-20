@@ -80,24 +80,57 @@ body {
   scrollbar-width: thin; scrollbar-color: #3C3C3C transparent;
 }
 #dp-body::-webkit-scrollbar { width: 4px; }
-#dp-body::-webkit-scrollbar-thumb { background: #3C3C3C; border-radius: 2px; }
+#dp-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 /* ── RWD 手機：底部滑入 ── */
 @media (max-width: 600px) {
   #detail-panel {
     top: auto; bottom: 0; left: 0; right: 0;
     width: 100%; height: 70%;
-    border-right: none; border-top: 0.5px solid #3C3C3C;
+    border-right: none; border-top: 0.5px solid var(--border);
     border-radius: var(--border-radius-lg, 12px) var(--border-radius-lg, 12px) 0 0;
     transform: translateY(100%);
   }
   #detail-panel.show { transform: translateY(0); }
 }
 
-#toolbar { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-button { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid #3C3C3C; background: #252526; color: #D4D4D4; cursor: pointer; font-family: inherit; }
-button:hover { background: #2D2D2D; color: #FFFFFF; }
-#zoom-info { font-size: 11px; color: #808080; padding: 5px 10px; align-self: center; }
+/* ── 主題變數 ── */
+:root {
+  --bg-page:    #0f1117;
+  --bg-canvas:  #1E1E1E;
+  --bg-btn:     #252526;
+  --bg-btn-hov: #2D2D2D;
+  --border:     #3C3C3C;
+  --text:       #D4D4D4;
+  --text-dim:   #808080;
+  --panel-bg:   #1E1E1E;
+  --panel-border: #3C3C3C;
+  --row-border: #2A2A2A;
+}
+body.light {
+  --bg-page:    #F3F3F3;
+  --bg-canvas:  #FFFFFF;
+  --bg-btn:     #E8E8E8;
+  --bg-btn-hov: #D8D8D8;
+  --border:     #C8C8C8;
+  --text:       #1E1E1E;
+  --text-dim:   #666666;
+  --panel-bg:   #FAFAFA;
+  --panel-border: #D0D0D0;
+  --row-border: #E8E8E8;
+}
+
+#toolbar { display: flex; gap: 8px; margin-bottom: 0; flex-wrap: wrap; align-items: center; }
+button { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--bg-btn); color: var(--text); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
+button:hover { background: var(--bg-btn-hov); color: var(--text); }
+#zoom-info { font-size: 12px; color: var(--text-dim); padding: 5px 4px; align-self: center; font-family: inherit; }
+#btn-theme { font-size: 14px; padding: 4px 10px; }
+html, body { background: var(--bg-page); }
+#canvas-wrap { background: var(--bg-canvas); border-color: var(--border); }
+#detail-panel { background: var(--panel-bg); border-color: var(--panel-border); }
+#dp-header { border-color: var(--panel-border); }
+#dp-name { color: var(--text); }
+#dp-title { color: var(--text-dim); }
 </style>
 
 <div id="toolbar">
@@ -106,6 +139,7 @@ button:hover { background: #2D2D2D; color: #FFFFFF; }
   <button id="btn-reset">重設視角</button>
   <button id="btn-zoomin">＋ 放大</button>
   <button id="btn-zoomout">－ 縮小</button>
+  <button id="btn-theme">☀️</button>
   <span id="zoom-info">滾輪縮放 ｜ 拖曳平移 ｜ 點擊展開/詳情</span>
 </div>
 <div id="canvas-wrap">
@@ -786,11 +820,36 @@ const data = {
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-mem', children:[] },
-                            { id:'chs5', name:'葉詩怡', title:'文件專員', duty:'文件', grade:'專員', color:'c-chem',
-                              children:[
-                                { id:'chs5a', name:'林崇欣', title:'文件專員', duty:'文件', grade:'專員', color:'c-mem', children:[] },
-                              ]
-                            },
+                            { id:'chs5', name:'葉詩怡', title:'文件專員', duty:'出口文件', grade:'專員', directManager:'cham',
+                              resps:[{desc:'出口文件', tasks:[
+                                '製作HBL核對給客戶',
+                                '上傳MBL作法給船公司',
+                                '核對/修改HBL和MBL',
+                                '更新船期給客戶',
+                                'Key Hoyer系統-Real system',
+                                '發HBL及請款付給船公司及領MBL',
+                                '通知台北印單送單事宜',
+                                '發提單掃描檔給客戶和代理',
+                                '開發票跟客戶請款',
+                                '整理銷帳資料給會計',
+                              ]}],
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              color:'c-chem', children:[] },
+                            { id:'chs5a', name:'林崇欣', title:'文件專員', duty:'出口文件', grade:'專員', directManager:'cham',
+                              resps:[{desc:'出口文件', tasks:[
+                                '製作HBL核對給客戶',
+                                '上傳MBL作法給船公司',
+                                '核對/修改HBL和MBL',
+                                '更新船期給客戶',
+                                'Key Hoyer系統-Real system',
+                                '發HBL及請款付給船公司及領MBL',
+                                '通知台北印單送單事宜',
+                                '發提單掃描檔給客戶和代理',
+                                '開發票跟客戶請款',
+                                '整理銷帳資料給會計',
+                              ]}],
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              color:'c-mem', children:[] },
                           ]
                         },
                       ]
@@ -968,8 +1027,10 @@ function _0x9c0d() {
 
   const titleX = W / 2;
   const titleY = _0x1a2b[data.id] ? _0x1a2b[data.id].y - 48 : 30;
-  html += `<text x="${titleX}" y="${titleY}" text-anchor="middle" font-size="18" font-weight="500" fill="#D4D4D4" font-family="inherit" letter-spacing="2">航昇關係企業組織圖</text>`;
-  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="12" fill="#808080" font-family="inherit">2026 年 3 月</text>`;
+  const titleColor = document.body.classList.contains('light') ? '#1E1E1E' : '#D4D4D4';
+  const titleDim   = document.body.classList.contains('light') ? '#888888' : '#808080';
+  html += `<text x="${titleX}" y="${titleY}" text-anchor="middle" font-size="18" font-weight="500" fill="${titleColor}" font-family="inherit" letter-spacing="2">航昇關係企業組織圖</text>`;
+  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="12" fill="${titleDim}" font-family="inherit">2026 年 3 月</text>`;
 
   function _0x1e2f(node) {
     if (_0x3c4d.has(node.id) || !node.children || !node.children.length) return;
@@ -979,7 +1040,8 @@ function _0x9c0d() {
       if (!c) return;
       const x1=p.x, y1=p.y+NODE_H, x2=c.x, y2=c.y;
       const my=(y1+y2)/2;
-      html += `<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="#3C3C3C" stroke-width="1.2"/>`;
+      const lineColor = document.body.classList.contains('light') ? '#CCCCCC' : '#3C3C3C';
+      html += `<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${lineColor}" stroke-width="1.2"/>`;
       _0x1e2f(child);
     });
   }
@@ -998,23 +1060,30 @@ function _0x9c0d() {
     
     const _0x2833 = (node.color !== 'c-mem') ? c.stroke : _0x1711;
 
+    const isLight = document.body.classList.contains('light');
+    const nodeFill   = isLight ? '#F8F8F8' : c.fill;
+    const nodeFill2  = isLight ? '#F0F0F0' : BG2;
+    const actualFill = (node.color === 'c-mem') ? nodeFill2 : nodeFill;
+    const nodeText   = isLight ? '#1E1E1E' : c.text;
+    const nodeSub    = isLight ? c.stroke   : _0xc277;
+
     html += `<g class="node-group" data-id="${node.id}" data-stroke="${stroke}">`;
-    html += `<rect class="node-rect" x="${nx}" y="${y}" width="${NODE_W}" height="${NODE_H}" rx="8" fill="${c.fill}" stroke="${stroke}" stroke-width="0.5"/>`;
+    html += `<rect class="node-rect" x="${nx}" y="${y}" width="${NODE_W}" height="${NODE_H}" rx="8" fill="${actualFill}" stroke="${stroke}" stroke-width="0.5"/>`;
 
     const _0x5b99 = new Set(['c-top','c-staff','c-dept','c-shipping','c-agency','c-port','c-logistics','c-freight','c-charter','c-chem','c-acct']);
     const _0x4a77 = _0x5b99.has(node.color) && !node.title ? '700' : '500';
 
     const _0x3955 = node.duty || node.title || null;
     const nameY = _0x3955 ? y+20 : y+30;
-    html += `<text x="${x}" y="${nameY}" text-anchor="middle" font-size="13" font-weight="${_0x4a77}" fill="${c.text}" font-family="inherit">${node.name}</text>`;
+    html += `<text x="${x}" y="${nameY}" text-anchor="middle" font-size="13" font-weight="${_0x4a77}" fill="${nodeText}" font-family="inherit">${node.name}</text>`;
     if (_0x3955) {
-      html += `<text x="${x}" y="${y+35}" text-anchor="middle" font-size="10" fill="${_0xc277}" font-family="inherit">${_0x3955}</text>`;
+      html += `<text x="${x}" y="${y+35}" text-anchor="middle" font-size="10" fill="${nodeSub}" font-family="inherit">${_0x3955}</text>`;
     }
 
     if (hasKids) {
       const btnX = x, btnY = y + NODE_H;
-      html += `<circle cx="${btnX}" cy="${btnY}" r="8" fill="${c.fill}" stroke="${stroke}" stroke-width="0.5"/>`;
-      html += `<text x="${btnX}" y="${btnY+4}" text-anchor="middle" font-size="11" fill="${c.text}" font-family="inherit">${isCol?'+':'−'}</text>`;
+      html += `<circle cx="${btnX}" cy="${btnY}" r="8" fill="${actualFill}" stroke="${stroke}" stroke-width="0.5"/>`;
+      html += `<text x="${btnX}" y="${btnY+4}" text-anchor="middle" font-size="11" fill="${nodeText}" font-family="inherit">${isCol?'+':'−'}</text>`;
     }
     html += `</g>`;
 
@@ -1055,17 +1124,135 @@ function _0x5c6d() {
       if (node.noPanel) { if (node.children&&node.children.length) _0x7e8f(id); return; }
       if (node.children && node.children.length) {
         _0x7e8f(id);
-        if (node.title) _0x9a0b(node);
+        if (node.title) { _0x9a0b(node); _0xa1b2(node); }
       } else {
         _0x9a0b(node);
+        _0xa1b2(node);
       }
     });
     g.addEventListener('contextmenu', e => {
       e.preventDefault();
       const id = g.dataset.id;
       const pos = _0x1a2b[id];
-      if (pos && !pos.node.noPanel) _0x9a0b(pos.node);
+      if (pos && !pos.node.noPanel) { _0x9a0b(pos.node); _0xa1b2(pos.node); }
     });
+  });
+}
+
+let _0xf7a8 = null; 
+
+function _0xe5f6(parentNode) {
+  const ids = [];
+  function scan(node) {
+    if (!node.children) return;
+    node.children.forEach(c => {
+      if (c.title) ids.push(c.id);
+      else scan(c);
+    });
+  }
+  scan(parentNode);
+  return ids;
+}
+
+function _0xb9c0(targetId) {
+  
+  function search(node, path) {
+    if (node.id === targetId) return path;
+    for (const c of (node.children||[])) {
+      const r = search(c, [...path, node.id]);
+      if (r) return r;
+    }
+    return null;
+  }
+  return search(data, []) || [];
+}
+
+function _0xa1b2(node) {
+  if (!node.title) return;
+
+  _0xf7a8 = new Set(_0x3c4d);
+
+  const reviewers = [];
+  if (node.directManager) reviewers.push(node.directManager);
+  if (node.funcManager)   reviewers.push(node.funcManager);
+  const reviewees = _0xe5f6(node);
+
+  const keepVisible = new Set([node.id, ...reviewers, ...reviewees]);
+
+  const pathsToKeep = new Set();
+  keepVisible.forEach(id => {
+    _0xb9c0(id).forEach(pid => pathsToKeep.add(pid));
+  });
+
+  function _0x5a6b(n) {
+    if (!n.children || !n.children.length) return;
+    if (!pathsToKeep.has(n.id)) {
+      _0x3c4d.add(n.id);
+    } else {
+      _0x3c4d.delete(n.id);
+    }
+    n.children.forEach(_0x5a6b);
+  }
+  _0x5a6b(data);
+
+  _0x9c0d();
+
+  const svgEl = document.getElementById('svg-canvas');
+  const W = svgEl.clientWidth || 800;
+  const H = svgEl.clientHeight || 620;
+  const panelW = 320; 
+  const remainCX = panelW + (W - panelW) / 2; 
+  const remainCY = H / 2;                      
+
+  const pos = _0x1a2b[node.id];
+  if (pos) {
+    panX = remainCX - pos.x * scale;
+    panY = remainCY - (pos.y + NODE_H/2) * scale;
+    _0x9c0d();
+  }
+
+  const isLight = document.body.classList.contains('light');
+  const colorSelf     = isLight ? '#444c55' : '#d6e9ff';
+  const colorReviewer = '#88b4e7';
+  const colorReviewee = '#42675a';
+
+  document.querySelectorAll('.node-group').forEach(g => {
+    const gid = g.dataset.id;
+    const r = g.querySelector('.node-rect');
+    if (!r) return;
+    if (gid === node.id) {
+      r.style.stroke = colorSelf;
+      r.style.strokeWidth = '2.5';
+      r.style.filter = `drop-shadow(0 0 6px ${colorSelf}) drop-shadow(0 0 14px ${colorSelf}88)`;
+    } else if (reviewers.includes(gid)) {
+      r.style.stroke = colorReviewer;
+      r.style.strokeWidth = '2';
+      r.style.filter = `drop-shadow(0 0 6px ${colorReviewer}) drop-shadow(0 0 14px ${colorReviewer}66)`;
+    } else if (reviewees.includes(gid)) {
+      r.style.stroke = colorReviewee;
+      r.style.strokeWidth = '2';
+      r.style.filter = `drop-shadow(0 0 6px ${colorReviewee}) drop-shadow(0 0 14px ${colorReviewee}66)`;
+    } else {
+      r.style.opacity = '0.35';
+    }
+  });
+}
+
+function _0xc3d4() {
+  
+  if (_0xf7a8 !== null) {
+    _0x3c4d.clear();
+    _0xf7a8.forEach(id => _0x3c4d.add(id));
+    _0xf7a8 = null;
+    _0x9c0d();
+  }
+  document.querySelectorAll('.node-group').forEach(g => {
+    const r = g.querySelector('.node-rect');
+    if (!r) return;
+    r.style.opacity = '';
+    r.style.stroke = '';
+    r.style.strokeWidth = '';
+    r.style.filter = '';
   });
 }
 
@@ -1096,15 +1283,40 @@ function _0x7a9b(title) {
   return { duty: title, grade: '專員' };
 }
 
+const EMP_ID = {
+  '魏程師':'111','謝淑瑤':'168','洪映芬':'112','邱台美':'128',
+  '謝佩芬':'149','方麗娜':'113','許佳榮':'145','孔振蕊':'121',
+  '林虹君':'117','呂文祺':'126','羅一平':'146','康靈祺':'120',
+  '孫玉珊':'142','魏嘉俊':'127','廖永照':'137','趙玉如':'122',
+  '謝宛真':'155','呂文漪':'118','翁慧君':'162','徐淑玲':'129',
+  '潘綵瑄':'150','李一中':'19','紀凱銘':'136','許玉燕':'18',
+  '李岱玲':'143','郭淑慧':'130','賴雅婷':'164','葉容禎':'147',
+  '王仁育':'134','曾健倫':'23','曾慧怡':'167',
+  '王書婷':'178','蘇崇瑋':'10','林詩倩':'169','李維玲':'17',
+  '陽妮潔':'124','李俊賢':'144','張淑娟':'115','蘇敉瑤':'102',
+  '盧麗雯':'163','顏佳怡':'176','薛愛倫':'153','陳怡分':'131',
+  '林崇欣':'125','周錦絹':'154','葉盈儀':'140','簡麗玲':'104',
+  '陳韋伶':'141','蘇慶星':'158','陸藝':'156','鄭文傑':'171',
+  '劉昌城':'151','凌曉恬':'179','賴芊華':'108','劉新喜':'157',
+  '李芝瑜':'177','阮翊甯':'116','葉詩怡':'170','陳宥如':'105',
+  '陳盈瑄':'166','梁季暉':'132','陳秉寬':'159','郭永諒':'106',
+  '廖婕婷':'152','陳立農':'139','李惠敏':'175','王湞潞':'172',
+};
+
 function _0x9a0b(node) {
-  const stroke = (COLORS[node.color] || COLORS['c-mem']).stroke;
-  const initials = node.name.replace(/[／/、，, ]/g,'').slice(0,2);
+  
+  const svgNode = document.querySelector(`.node-group[data-id="${node.id}"]`);
+  const stroke = svgNode
+    ? (svgNode.dataset.stroke || (COLORS[node.color] || COLORS['c-mem']).stroke)
+    : (COLORS[node.color] || COLORS['c-mem']).stroke;
+  const empId = EMP_ID[node.name] || '';
 
   const av = document.getElementById('dp-avatar');
-  av.textContent = initials;
+  av.textContent = empId || node.name.replace(/[／/、，, ]/g,'').slice(0,2);
   av.style.background = stroke + '22';
   av.style.color = stroke;
   av.style.border = `0.5px solid ${stroke}`;
+  av.style.fontSize = empId ? '13px' : '13px';
   document.getElementById('dp-name').textContent  = node.name;
   document.getElementById('dp-title').textContent = node.title || node.duty || '';
 
@@ -1124,10 +1336,10 @@ function _0x9a0b(node) {
       if (node.resps.length > 1) {
         html += `<div style="font-size:11px;color:#569CD6;font-weight:600;margin-bottom:6px;letter-spacing:0.05em;">職責 ${i+1}</div>`;
       }
-      if (r.desc) html += row('職責描述', r.desc, '#D4D4D4');
+      if (r.desc) html += row('職責描述', r.desc, 'var(--text)');
       if (r.tasks && r.tasks.length) {
         html += _0xb145('工作任務');
-        html += list(r.tasks, '#C8C8C8');
+        html += list(r.tasks, 'var(--text)');
       }
     });
   }
@@ -1135,7 +1347,7 @@ function _0x9a0b(node) {
   if (node.permissions && node.permissions.length) {
     html += _0x8c0d();
     html += _0xb145('權限');
-    html += list(node.permissions, '#DCDCAA');
+    html += list(node.permissions, 'var(--text)');
   }
 
   const dept = node.dept ? _0x3e5f(node.dept) : _0x4a6b(node.id);
@@ -1174,34 +1386,35 @@ function _0x9a0b(node) {
 function _0x1c2d() {
   document.getElementById('detail-panel').classList.remove('show');
   document.getElementById('panel-overlay').classList.remove('show');
+  _0xc3d4();
 }
 
 function _0x8c0d() {
-  return `<div style="border-top:0.5px solid #2D2D2D;margin:10px 0;"></div>`;
+  return `<div style="border-top:0.5px solid var(--row-border,#2D2D2D);margin:10px 0;"></div>`;
 }
 function section(rows) {
   return `<div style="display:flex;flex-direction:column;gap:2px;">${rows.join('')}</div>`;
 }
 function row(label, value, color) {
-  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid #2A2A2A;">
-    <span style="color:#606060;flex-shrink:0;margin-right:12px;">${label}</span>
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
+    <span style="color:var(--text-dim);flex-shrink:0;margin-right:12px;">${label}</span>
     <span style="color:${color};text-align:right;">${value}</span>
   </div>`;
 }
 function _0xa023(label, name, id, _0xd399) {
-  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid #2A2A2A;">
-    <span style="color:#606060;flex-shrink:0;margin-right:12px;">${label}</span>
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
+    <span style="color:var(--text-dim);flex-shrink:0;margin-right:12px;">${label}</span>
     <span class="mgr-link" data-id="${id}" style="color:${_0xd399};text-align:right;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${name}</span>
   </div>`;
 }
 function _0xb145(label) {
-  return `<div style="font-size:11px;color:#606060;margin:6px 0 4px;letter-spacing:0.05em;">${label}</div>`;
+  return `<div style="font-size:11px;color:var(--text-dim);margin:6px 0 4px;letter-spacing:0.05em;">${label}</div>`;
 }
 function list(items, color) {
   return `<div style="display:flex;flex-direction:column;gap:3px;">` +
     items.map((t,i) =>
       `<div style="font-size:12px;color:${color};line-height:1.6;display:flex;gap:6px;">
-        <span style="color:#3C3C3C;flex-shrink:0;">${i+1}.</span>
+        <span style="color:var(--text-dim);flex-shrink:0;">${i+1}.</span>
         <span style="white-space:pre-wrap;">${t}</span>
       </div>`
     ).join('') +
@@ -1334,6 +1547,11 @@ document.getElementById('btn-zoomin').addEventListener('click', _0x1a3b);
 document.getElementById('btn-zoomout').addEventListener('click', _0x2c4d);
 document.getElementById('panel-overlay').addEventListener('click', _0x1c2d);
 document.getElementById('detail-close').addEventListener('click', _0x1c2d);
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('btn-theme').textContent = isLight ? '🌙' : '☀️';
+  _0x9c0d();
+});
 
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
@@ -1346,7 +1564,7 @@ document.addEventListener('keydown', e => {
 function _0x6e8f() {
   function _0xf5dd(node, depth) {
     if (!node.children || !node.children.length) return;
-    if (depth >= 3) { _0x3c4d.add(node.id); }
+    if (depth >= 4) { _0x3c4d.add(node.id); }
     node.children.forEach(c => _0xf5dd(c, depth+1));
   }
   _0xf5dd(data, 0);
