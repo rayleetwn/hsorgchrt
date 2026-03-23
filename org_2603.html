@@ -24,7 +24,7 @@ body {
 #panel-overlay {
   position: absolute; inset: 0;
   background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(1px);
   z-index: 100;
   opacity: 0; pointer-events: none;
   transition: opacity 0.28s ease;
@@ -199,8 +199,40 @@ const data = {
       children:[
         { id:'staff-room', name:'董事長室', color:'c-staff',
           children:[
-            { id:'asst', name:'祝彩蘋', title:'董事長特助', duty:'董事長特助', grade:'副總經理', color:'c-staff', children:[] },
-            { id:'sec',  name:'孔振蕊', title:'董事長秘書', duty:'董事長秘書', grade:'副總經理', color:'c-staff', children:[] },
+            { id:'asst', name:'祝彩蘋', title:'董事長特助', duty:'董事長特助', grade:'副總經理', directManager:'chairman',
+              resps:[{
+                desc:'職位說明',
+                tasks:[
+                  '數據監測與預警：彙整海外事業部營運數據，分析毛利、成本與 KPI 達成率，並針對異常數據提出預警報告',
+                  '專案投資評估：針對跨國投資或新項目可行性研究（Feasibility Study），提供董事長決策基準',
+                  '部門協調整合：整合海內外承攬部門，優化各部門的管理及人事並協助業務開發',
+                  '跨部門協調：當有推行受阻時，代表董事長／總經理進行橫向調度與溝通',
+                  '任務追蹤與管考：監督決議事項的執行進度，確保各部門落實董事長的營運導向',
+                  '組織優化與制度：協助梳理與優化公司的管理架構、內稽內控機制，提升整體營運效率',
+                ]
+              }],
+              permissions:[
+                '在權限範圍內，有代表公司對外聯絡的權力',
+                '有對各項費用開支的審核權',
+                '對限額資金使用有批准權',
+              ],
+              color:'c-staff', children:[] },
+            { id:'sec',  name:'孔振蕊', title:'董事長秘書', duty:'董事長秘書', grade:'副總經理', directManager:'chairman',
+              resps:[{
+                desc:'職位說明',
+                tasks:[
+                  '差旅統籌：規劃國內外交通與住宿安排，確保商務行程銜接順暢',
+                  '會議協調：負責會議行程排定、發布通知及會前提醒，並備妥相關資料',
+                  '任務執行：高效完成董事長交辦事項，並針對工作進度精準回報',
+                  '通訊過濾：擔任通訊窗口進行電話接聽與過濾，精準判斷事務優先順序',
+                ]
+              }],
+              permissions:[
+                '在權限範圍內，有代表公司對外聯絡的權力',
+                '有對各項費用開支的審核權',
+                '對限額資金使用有批准權',
+              ],
+              color:'c-staff', children:[] },
           ]
         },
         { id:'gm', name:'謝淑瑤', title:'總經理', color:'c-top',
@@ -1221,19 +1253,22 @@ function _0xa1b2(node) {
     const r = g.querySelector('.node-rect');
     if (!r) return;
     if (gid === node.id) {
+      g.style.opacity = '';
       r.style.stroke = colorSelf;
       r.style.strokeWidth = '2.5';
       r.style.filter = `drop-shadow(0 0 6px ${colorSelf}) drop-shadow(0 0 14px ${colorSelf}88)`;
     } else if (reviewers.includes(gid)) {
+      g.style.opacity = '';
       r.style.stroke = colorReviewer;
       r.style.strokeWidth = '2';
       r.style.filter = `drop-shadow(0 0 6px ${colorReviewer}) drop-shadow(0 0 14px ${colorReviewer}66)`;
     } else if (reviewees.includes(gid)) {
+      g.style.opacity = '';
       r.style.stroke = colorReviewee;
       r.style.strokeWidth = '2';
       r.style.filter = `drop-shadow(0 0 6px ${colorReviewee}) drop-shadow(0 0 14px ${colorReviewee}66)`;
     } else {
-      r.style.opacity = '0.35';
+      g.style.opacity = '0.25';
     }
   });
 }
@@ -1249,6 +1284,7 @@ function _0xc3d4() {
   document.querySelectorAll('.node-group').forEach(g => {
     const r = g.querySelector('.node-rect');
     if (!r) return;
+    g.style.opacity = '';
     r.style.opacity = '';
     r.style.stroke = '';
     r.style.strokeWidth = '';
