@@ -7,6 +7,89 @@
 </head>
 <body>
 <style>
+/* ── Tooltip 逐步導覽 ── */
+#tour-backdrop {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(1px);
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+#tour-backdrop.hide { opacity: 0; }
+
+#tour-tooltip {
+  position: fixed; z-index: 910;
+  background: #1E1E1E;
+  border: 0.5px solid #D4D4D4;
+  border-radius: 10px;
+  padding: 16px 18px 14px;
+  width: 280px;
+  box-shadow: 0 0 24px #D4D4D420;
+  font-family: var(--font-sans, 'Noto Sans TC', 'Microsoft JhengHei', sans-serif);
+  transition: top 0.35s cubic-bezier(0.4,0,0.2,1),
+              left 0.35s cubic-bezier(0.4,0,0.2,1),
+              opacity 0.25s;
+}
+#tour-tooltip.hide { opacity: 0; pointer-events: none; }
+#tour-tooltip::before {
+  content: '';
+  position: absolute;
+  border: 7px solid transparent;
+}
+#tour-tooltip.arrow-down::before {
+  border-top-color: #D4D4D4;
+  top: 100%; left: 28px;
+}
+#tour-tooltip.arrow-up::before {
+  border-bottom-color: #D4D4D4;
+  bottom: 100%; left: 28px;
+}
+#tour-tooltip.arrow-left::before {
+  border-right-color: #D4D4D4;
+  right: 100%; top: 18px;
+}
+
+#tour-step-indicator {
+  font-size: 15px; color: #808080;
+  letter-spacing: 0.08em; margin-bottom: 6px;
+}
+#tour-title {
+  font-size: 19px; font-weight: 600; color: #D4D4D4;
+  margin-bottom: 6px;
+}
+#tour-desc {
+  font-size: 17px; color: #9E9E9E; line-height: 1.6;
+  margin-bottom: 14px;
+}
+#tour-actions {
+  display: flex; justify-content: space-between; align-items: center;
+}
+#tour-skip {
+  font-size: 16px; color: #606060; background: none;
+  border: none; padding: 4px 0; cursor: pointer;
+  font-family: inherit;
+}
+#tour-skip:hover { color: #909090; background: none; }
+#tour-next {
+  font-size: 17px; font-weight: 500;
+  background: #D4D4D4; border: none;
+  color: #1E1E1E; padding: 6px 14px;
+  border-radius: 6px; cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+#tour-next:hover { background: #ffffff; }
+
+/* ── 高亮目標框 ── */
+.tour-highlight {
+  outline: 2px solid #D4D4D4 !important;
+  outline-offset: 3px;
+  border-radius: 6px;
+  position: relative;
+  z-index: 901;
+  box-shadow: 0 0 16px #D4D4D440;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; background: #0f1117; overflow: hidden; }
 body {
@@ -57,16 +140,16 @@ body {
 #dp-avatar {
   width: 36px; height: 36px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600;
+  font-size: 16px; font-weight: 600;
   margin-bottom: 10px;
   flex-shrink: 0;
 }
-#dp-name  { font-size: 16px; font-weight: 600; color: #D4D4D4; }
-#dp-title { font-size: 12px; color: #808080; margin-top: 2px; }
+#dp-name  { font-size: 19px; font-weight: 600; color: #D4D4D4; }
+#dp-title { font-size: 15px; color: #808080; margin-top: 2px; }
 #detail-close {
   position: absolute; top: 12px; right: 12px;
   background: #2D2D2D; border: 0.5px solid #3C3C3C;
-  color: #808080; font-size: 14px; cursor: pointer;
+  color: #808080; font-size: 17px; cursor: pointer;
   width: 26px; height: 26px; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   font-family: inherit; padding: 0;
@@ -124,6 +207,20 @@ body.light {
 button { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--bg-btn); color: var(--text); cursor: pointer; font-family: inherit; transition: background 0.15s, color 0.15s; }
 button:hover { background: var(--bg-btn-hov); color: var(--text); }
 #zoom-info { font-size: 12px; color: var(--text-dim); padding: 5px 4px; align-self: center; font-family: inherit; }
+#internal-notice {
+  color: #e8a040; font-weight: 600; font-size: 12px; letter-spacing: 0.08em;
+  padding: 3px 10px; border: 1px solid rgba(232,160,64,0.3); border-radius: 12px;
+  cursor: default; transition: all 0.3s ease; margin-left: 6px;
+  text-shadow: 0 0 4px rgba(232,160,64,0.2);
+}
+#internal-notice:hover {
+  color: #ffc040;
+  text-shadow: 0 0 8px rgba(255,192,64,0.6), 0 0 20px rgba(255,192,64,0.3), 0 0 40px rgba(255,192,64,0.15);
+  border-color: rgba(255,192,64,0.6);
+  box-shadow: 0 0 12px rgba(255,192,64,0.2), inset 0 0 8px rgba(255,192,64,0.05);
+}
+.light #internal-notice { color: #b87a20; border-color: rgba(184,122,32,0.3); text-shadow: 0 0 4px rgba(184,122,32,0.15); }
+.light #internal-notice:hover { color: #a06800; text-shadow: 0 0 8px rgba(184,122,32,0.5), 0 0 20px rgba(184,122,32,0.2); border-color: rgba(184,122,32,0.5); box-shadow: 0 0 12px rgba(184,122,32,0.15); }
 #btn-theme { font-size: 14px; padding: 4px 10px; }
 html, body { background: var(--bg-page); }
 #canvas-wrap { background: var(--bg-canvas); border-color: var(--border); }
@@ -133,6 +230,18 @@ html, body { background: var(--bg-page); }
 #dp-title { color: var(--text-dim); }
 </style>
 
+<!-- Tooltip 導覽 -->
+<div id="tour-backdrop"></div>
+<div id="tour-tooltip">
+  <div id="tour-step-indicator"></div>
+  <div id="tour-title"></div>
+  <div id="tour-desc"></div>
+  <div id="tour-actions">
+    <button id="tour-skip">跳過</button>
+    <button id="tour-next">下一步 →</button>
+  </div>
+</div>
+
 <div id="toolbar">
   <button id="btn-expand">全部展開</button>
   <button id="btn-collapse">全部收合</button>
@@ -140,7 +249,8 @@ html, body { background: var(--bg-page); }
   <button id="btn-zoomin">＋ 放大</button>
   <button id="btn-zoomout">－ 縮小</button>
   <button id="btn-theme">☀️</button>
-  <span id="zoom-info">滾輪縮放 ｜ 拖曳平移 ｜ 點擊展開/詳情</span>
+  <button id="btn-tour">？ 導覽</button>
+  <span id="zoom-info">滾輪縮放 ｜ 拖曳平移 ｜ 點擊展開/詳情</span><span id="internal-notice">僅供公司內部討論使用</span>
 </div>
 <div id="canvas-wrap">
   <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -203,12 +313,12 @@ const data = {
               resps:[{
                 desc:'職位說明',
                 tasks:[
-                  '數據監測與預警：彙整海外事業部營運數據，分析毛利、成本與 KPI 達成率，並針對異常數據提出預警報告',
-                  '專案投資評估：針對跨國投資或新項目可行性研究（Feasibility Study），提供董事長決策基準',
-                  '部門協調整合：整合海內外承攬部門，優化各部門的管理及人事並協助業務開發',
-                  '跨部門協調：當有推行受阻時，代表董事長／總經理進行橫向調度與溝通',
-                  '任務追蹤與管考：監督決議事項的執行進度，確保各部門落實董事長的營運導向',
-                  '組織優化與制度：協助梳理與優化公司的管理架構、內稽內控機制，提升整體營運效率',
+                  '彙整海外事業部營運數據，分析毛利、成本與 KPI 達成率，並針對異常數據提出預警報告',
+                  '評估跨國投資或新項目可行性研究，提供董事長決策基準',
+                  '整合海內外承攬部門，優化各部門管理及人事並協助業務開發',
+                  '代表董事長／總經理進行跨部門橫向調度與溝通',
+                  '監督決議事項執行進度，確保各部門落實董事長的營運導向',
+                  '協助梳理與優化公司管理架構、內稽內控機制，提升整體營運效率',
                 ]
               }],
               permissions:[
@@ -222,10 +332,10 @@ const data = {
               resps:[{
                 desc:'職位說明',
                 tasks:[
-                  '差旅統籌：規劃國內外交通與住宿安排，確保商務行程銜接順暢',
-                  '會議協調：負責會議行程排定、發布通知及會前提醒，並備妥相關資料',
-                  '任務執行：高效完成董事長交辦事項，並針對工作進度精準回報',
-                  '通訊過濾：擔任通訊窗口進行電話接聽與過濾，精準判斷事務優先順序',
+                  '規劃國內外差旅交通與住宿安排，確保商務行程銜接順暢',
+                  '排定會議行程、發布通知及會前提醒，並備妥相關資料',
+                  '執行董事長交辦事項，並針對工作進度精準回報',
+                  '擔任通訊窗口，負責電話接聽與過濾，判斷事務優先順序',
                 ]
               }],
               permissions:[
@@ -245,12 +355,12 @@ const data = {
                   resps:[{
                     desc:'合規',
                     tasks:[
-                      '制定和更新公司內部的合規政策與程序',
-                      '與主管機構溝通，應對監管檢查',
+                      '制定並定期更新公司內部合規政策與作業程序',
+                      '與主管機關保持溝通聯繫，協助應對監管稽查',
                       '配合內外部稽核',
-                      '組織相關培訓，確保員工了解公司政策、法規要求',
-                      '調查潛在的違規行為或投訴',
-                      '向管理層或董事會報告合規狀況、評估風險和潛在問題',
+                      '規劃並執行合規培訓，確保員工充分了解相關政策與法規要求',
+                      '受理並調查潛在違規行為或員工投訴',
+                      '定期向管理層或董事會報告合規狀況，評估潛在風險與問題',
                     ]
                   }],
                   permissions:[
@@ -264,12 +374,12 @@ const data = {
                   resps:[{
                     desc:'合規',
                     tasks:[
-                      '制定和更新公司內部的合規政策與程序',
-                      '與主管機構溝通，應對監管檢查',
+                      '制定並定期更新公司內部合規政策與作業程序',
+                      '與主管機關保持溝通聯繫，協助應對監管稽查',
                       '配合內外部稽核',
-                      '組織相關培訓，確保員工了解公司政策、法規要求',
-                      '調查潛在的違規行為或投訴',
-                      '向管理層或董事會報告合規狀況、評估風險和潛在問題',
+                      '規劃並執行合規培訓，確保員工充分了解相關政策與法規要求',
+                      '受理並調查潛在違規行為或員工投訴',
+                      '定期向管理層或董事會報告合規狀況，評估潛在風險與問題',
                     ]
                   }],
                   permissions:[
@@ -283,12 +393,12 @@ const data = {
                   resps:[{
                     desc:'資訊組副理職責',
                     tasks:[
-                      '硬體設備採購、維護',
-                      '系統、軟體、設定、輔助、解決問題',
-                      '文件、表格、設計、設定、協助',
-                      'Email 管理設定',
-                      '事務機管理設定',
-                      '電話傳真手機門號管理',
+                      '負責公司硬體設備之採購與日常維護',
+                      '管理系統與軟體設定，提供技術輔助及問題排除',
+                      '協助製作及維護公司文件、表格與設計需求',
+                      '執行 Email 帳號管理與相關設定',
+                      '管理事務機設備設定與維運',
+                      '統籌管理電話、傳真及行動電話門號',
                     ]
                   }],
                   permissions:[
@@ -302,14 +412,14 @@ const data = {
                   resps:[{
                     desc:'總務',
                     tasks:[
-                      '員工勞健保',
-                      '公司文具清潔器具採購',
-                      '更換公司燈管',
-                      '維修電腦',
-                      '寄送郵件',
-                      '和大樓管委會保持聯絡來通知公司同仁相對應的消息及公共地區的維修',
-                      '去銀行存款及提款',
-                      '統計送禮數量及金額及酒類庫存數量',
+                      '辦理員工勞健保加退保及相關業務',
+                      '採購公司文具、清潔用品及辦公器具',
+                      '執行辦公室設施維護（含燈具更換等庶務）',
+                      '協助電腦設備基礎維修',
+                      '負責郵件寄送與收發作業',
+                      '與大樓管委會保持聯繫，轉達公告事項並協調公共區域維修',
+                      '辦理銀行存提款業務',
+                      '統計節慶禮品數量、金額及酒類庫存',
                     ]
                   }],
                   permissions:[
@@ -342,8 +452,8 @@ const data = {
                             { id:'op-s1', name:'曾健倫', title:'船務操作經理', duty:'船務操作', grade:'經理', directManager:'op-c1',
                               resps:[{desc:'', tasks:[
                                 '負責乾散雜貨船日常船務操作，含詢價回覆、報價、訂單聯繫及文件製作',
+                                '負責油輪船日常船務操作，含詢價回覆、報價、訂單聯繫及文件製作',
                                 '製作並管理提單、艙單、NOR／SOF 及船東事項清單',
-                                '副總出差或休假時，代理管理乾散雜貨船組工作分配',
                               ]}],
                               permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                               color:'c-mem', children:[] },
@@ -381,7 +491,6 @@ const data = {
                             '回覆詢價及提供港口、裝卸相關資訊，辦理報價及供應商洽詢',
                             '與船長聯繫進港文件及碼頭作業要求，製作 NOR／SOF 及工作清單',
                             '定期發送到港通知，即時回報船舶動態，審核船帳',
-                            '副總出差或休假時，代理主持油化船組全組工作',
                           ]}],
                           permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                           color:'c-agency',
@@ -416,25 +525,29 @@ const data = {
                         },
                         { id:'op-d2', name:'呂文漪', title:'船務操作副理', duty:'船務操作', grade:'副經理', directManager:'op-vp',
                           resps:[{desc:'', tasks:[
-                            '統籌管理所負責船組業務及工作分配',
-                            '回覆詢價及提供港口、裝卸相關資訊，辦理報價及供應商洽詢',
-                            '與船長聯繫進港文件及碼頭作業要求，製作 NOR／SOF 及工作清單',
-                            '定期發送到港通知，即時回報船舶動態，審核船帳',
-                            '副總出差或休假時，協助代理工作調度',
+                            '統籌船東工作組業務及工作分配',
+                            '回覆各類相關詢價和諮詢信件',
+                            '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
+                            '任務完成回報',
+                            '船帳審核',
                           ]}],
                           permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                           color:'c-agency',
                           children:[
                             { id:'op-s8', name:'盧麗雯', title:'船務操作專員', duty:'船務操作', grade:'專員', directManager:'op-d2',
                               resps:[{desc:'', tasks:[
-                                '負責油化船日常船務操作，含詢價回覆、報價、文件製作及各單位聯繫',
-                                '製作提單、艙單，定期發送到港通知，即時回報船舶動態',
+                                '回覆各類相關詢價和諮詢信件',
+                                '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
+                                '任務完成回報',
+                                '船帳審核',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
                             { id:'op-s9', name:'陳盈瑄', title:'船務操作專員', duty:'船務操作', grade:'專員', directManager:'op-d2',
                               resps:[{desc:'', tasks:[
-                                '負責油化船日常船務操作，含詢價回覆、報價、文件製作及各單位聯繫',
-                                '製作提單、艙單，定期發送到港通知，即時回報船舶動態',
+                                '回覆各類相關詢價和諮詢信件',
+                                '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
+                                '任務完成回報',
+                                '船帳審核',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
                           ]
@@ -506,19 +619,25 @@ const data = {
                               }],
                               color:'c-mem', children:[] },
                             { id:'oil3', name:'何偉群', title:'麥寮辦事處代表', duty:'麥寮現場船務', grade:'代表', directManager:'oil',
-                              resps:[{
-                                desc:'',
-                                tasks:[
-                                  '每日0930參與麥寮港區船席會議，安排所屬代理船舶靠泊碼頭及時程',
-                                  '在港船隻登輪確認驗艙、裝卸貨等相關訊息回報',
-                                  '協調各方單位溝通',
-                                  '安排船舶需求及日常所需補給（加油、加水、就醫等）',
-                                  '特殊客戶文件製作及夜間、假日提單簽發',
-                                  '主管及OP小姐其他交辦事項（收加水費用、送小包裹）',
-                                  '臨時或緊急狀況因應及處置',
+                              resps:[{desc:'', tasks:[
+                                '每日出席麥寮港區船席會議，安排代理船舶靠泊碼頭及時程',
+                                '負責在港船隻作業聯繫、補給安排及各方單位協調',
+                                '執行文件製作、提單簽發及主管交辦事項，並即時處理突發狀況',
+                              ]}],
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'麥寮港日常作業流程',
+                                desc:'每日例行執行',
+                                steps:[
+                                  '每日 09:30 出席麥寮港區船席會議，安排代理船舶靠泊碼頭及時程',
+                                  '登輪確認在港船隻驗艙及裝卸貨狀況，並回報相關訊息',
+                                  '協調各方單位進行溝通聯繫',
+                                  '安排船舶日常補給需求，包含加油、加水及就醫等事項',
+                                  '製作特殊客戶文件，並於夜間及假日辦理提單簽發',
+                                  '執行主管及操作人員交辦事項（含收取加水費用、遞送包裹等）',
+                                  '即時因應並處置臨時或緊急突發狀況',
                                 ]
                               }],
-                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-mem', children:[] },
                           ]
                         },
@@ -526,7 +645,7 @@ const data = {
                           resps:[{
                             desc:'',
                             tasks:[
-                              '本部門裝卸散/雜貨為主',
+                              '負責散雜貨裝卸現場代理業務',
                               '高雄港公用碼頭船席調派，依現況條件調派最適碼頭靠泊作業',
                               '安排及協調相關單位以確保船舶裝卸貨流程順暢',
                               '維持客戶關係（船方及貨主）',
@@ -542,21 +661,24 @@ const data = {
                           ]
                         },
                         { id:'cont', name:'羅一平', title:'貨櫃現場船務經理', duty:'貨櫃現場船務', grade:'經理', directManager:'fvp',
-                          resps:[{
-                            desc:'',
-                            tasks:[
-                              '中外運公司 上海寧波航線＋澳洲線＋華北1、2線',
-                              '錦江海華 上海線＋太倉線',
-                              '民生公司 上海線',
-                              '寧遠公司 寧波線',
-                              '進出口船圖解析統計卸裝櫃數，傳送文件關務及碼頭人員處理後續業務',
-                              '和碼頭確認泊位，預報船期打引水單',
-                              '和碼頭確認完工時間，安排引水開航',
-                              '整理船圖，修改為總代理要求之格式，統計櫃量，到離港時間油水，發郵件給航線人員',
-                              '傳送船圖到總部系統，及詳細填寫到離港報數據，統計數據',
+                          resps:[{desc:'', tasks:[
+                            '負責中外運、錦江海華、民生、寧遠等航線貨櫃船現場代理業務',
+                            '解析船圖統計卸裝櫃數，協調碼頭泊位確認及引水開航安排',
+                            '整理並上傳船圖至總部系統，完整填報到離港數據',
+                          ]}],
+                          permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
+                          sops:[{
+                            title:'貨櫃船進出港作業流程',
+                            desc:'各航線船舶進出港時執行',
+                            steps:[
+                              '負責航線：中外運（上海寧波線、澳洲線、華北1/2線）、錦江海華（上海線、太倉線）、民生（上海線）、寧遠（寧波線）',
+                              '解析進出口船圖，統計卸裝櫃數，傳送文件予關務及碼頭人員辦理後續作業',
+                              '與碼頭確認泊位，預報船期並填送引水單',
+                              '與碼頭確認完工時間，安排引水開航',
+                              '整理船圖並依總代理格式修改，統計櫃量、到離港時間及油水資料，發送予航線人員',
+                              '上傳船圖至總部系統，完整填報到離港數據並統計',
                             ]
                           }],
-                          permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                           color:'c-port',
                           children:[
                             { id:'ct1', name:'紀凱銘', title:'現場船務副理', duty:'現場船務', grade:'副經理', color:'c-mem', children:[] },
@@ -583,30 +705,181 @@ const data = {
                         },
                         { id:'docdm', name:'邱台美', title:'文件部副理', duty:'文件', grade:'副經理', directManager:'fvp',
                           resps:[{desc:'', tasks:[
-                            '製作出口結關及進口海關艙單相關文件',
-                            '辦理進出口海關文件作業',
+                            '負責萬通、民生、錦江、式邦、世運等多條航線之進出口文件作業',
+                            '督導並執行進出口海關艙單製作、EDI 傳輸及全中系統資料維護',
+                            '統籌各航線 TDR 發送、退關轉船及空櫃准單申請作業',
                           ]}],
                           permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
+                          sops:[
+                            {
+                              title:'負責航線總覽',
+                              desc:'',
+                              steps:[
+                                'NTS LINE（萬通／啟昌）進口 — W#68&69｜職代：顏佳怡／薛愛倫',
+                                'NTC 華北線（萬通）進口 — W#63&64｜職代：顏佳怡／薛愛倫',
+                                '福州廈門線（萬通萬海）出口 — W#63&64 週五結關｜職代：顏佳怡／薛愛倫',
+                                'CAT 澳洲線（萬通）進出口 — W#108 週四結關｜職代：顏佳怡',
+                                'CTS 民生線（HAI MEN）出口 — W#42 週五結關｜職代：陽妮潔',
+                                '錦江太昌線（JJ NAGOYA／瑞世）出口 — W#70 週五結關｜職代：陽妮潔',
+                                'KMTC KTH 釜山線（式邦）出口 — W#70 週二結關｜職代：薛愛倫',
+                                'KMTC FME2 東南亞線（式邦）出口 — 週三結關｜職代：薛愛倫',
+                                '鴻光 TST（中聯 CUL）進出口 — W#70 不定時｜職代：顏佳怡／薛愛倫',
+                                '阿聯酋（世運）出口 — 不定期｜職代：薛愛倫',
+                              ]
+                            },
+                            {
+                              title:'共同作業規定',
+                              desc:'各航線船隻離港後均須執行',
+                              steps:[
+                                '船隻離港後發送 TDR，並輸入中外運船期系統預定時間及櫃量',
+                                '查詢當週進出口船隻掛號及日期，填入相關資料夾，通知關務鍵入全中系統船檔',
+                                '進口：依總代理提供 EDI 導入全中系統，提供艙單、貨櫃清單及准單予相關單位',
+                                '出口：裝船文件含 SUMMARY、所有櫃表（含外站及轉口）、SPECIAL CARGO LIST（OOG/RF/DG）、退關報告',
+                              ]
+                            },
+                            {
+                              title:'退關轉船作業流程',
+                              desc:'登入帳號：航昇海鑫 → 業界貨櫃資訊平台',
+                              steps:[
+                                '登入 https://imct.tradevan.com.tw，選取「退關轉船 ASP 作業」',
+                                '退關貨物轉船申報：逐批申報或整船申報（轉口櫃選代碼 5302）',
+                                '退關貨物轉船查詢',
+                                '海關回應訊息查詢',
+                                '完成後以退關轉船清表提交碼頭確認，並提供退轉完成櫃表',
+                              ]
+                            },
+                            {
+                              title:'空櫃准單申請流程',
+                              desc:'',
+                              steps:[
+                                '登入業界貨櫃資訊平台',
+                                '選「通關加值統計作業」→「准單申辦」',
+                                '上傳空櫃櫃號資料',
+                                '注意：重櫃准單理由 01，空櫃准單理由 05；TANK 櫃若船圖做空櫃需以重櫃報進口艙單',
+                              ]
+                            },
+                          ],
                           color:'c-port',
                           children:[
                             { id:'dc1', name:'顏佳怡', title:'文件專員', duty:'文件', grade:'專員', directManager:'docdm',
                               resps:[{desc:'', tasks:[
-                                '製作出口結關及進口海關艙單相關文件',
-                                '辦理進出口海關文件作業',
+                                '負責 NOS 寧波遠洋、SNL 中外運、SJJ 錦江等航線進出口文件作業',
+                                '執行化學船及油輪進出口文件，協助總代理相關單位聯繫',
                               ]}],
-                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'負責航線總覽',
+                                desc:'',
+                                steps:[
+                                  'NOS 寧波遠洋（世運）出口 — W#69 週一/週四結關｜職代：陽妮潔',
+                                  'SNL 中外運 SCT 華中線（萬通）進口 — #78W｜職代：薛愛倫',
+                                  'SNL 中外運 NCT 華北線（萬通）出口 — 萬海碼頭 週三/週五結關｜職代：邱台美',
+                                  'SJJ 錦江上海線（瑞世）進口 — #78W｜職代：陽妮潔',
+                                  'SJJ 錦江上海線（瑞世）出口 — #70W 週三結關｜職代：陽妮潔／邱台美',
+                                  '航昇威仕總代理化學船及油輪進出口文件｜職代：陽妮潔／薛愛倫',
+                                  '備註：DAISY 操作的船由陽妮潔負責',
+                                ]
+                              }],
+                              color:'c-mem', children:[] },
                             { id:'dc2', name:'陽妮潔', title:'文件專員', duty:'文件', grade:'專員', directManager:'docdm',
                               resps:[{desc:'', tasks:[
-                                '製作出口結關及進口海關艙單相關文件',
-                                '辦理進出口海關文件作業',
+                                '負責 SJJ 錦江、NOS 寧波遠洋、KMTC 式邦、MSL 民生等多條航線進出口文件',
+                                '執行航昇威仕總代理化學船（DAISY）及散雜貨船（TRACY）出口文件',
                               ]}],
-                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'負責航線總覽',
+                                desc:'SJJ 上海錦江航運（台灣總代理：瑞世船務）',
+                                steps:[
+                                  'JJ STAR 錦江之星 — 上海線出口 週五結關 靠泊78W｜出口職代：邱台美',
+                                  'HE BIN 和濱 — 上海線進/出口 週二結關 靠泊66W｜出口職代：邱台美｜進口職代：邱台美／顏佳怡',
+                                  'GLORY TIANJIN 海華天津 — 上海+溫州線進口 週三結關 靠泊70W｜進口職代：邱台美／顏佳怡',
+                                  'GLORY OCEAN 海華東京 — 上海+溫州線進/出口 靠泊70W｜出口職代：顏佳怡｜進口職代：邱台美／顏佳怡',
+                                  'JJ NAGOYA 夏錦 — 太倉線進口 週五結關 靠泊70W｜進口職代：邱台美／顏佳怡',
+                                  'TENG YUN HE 騰雲河／FEI YUN HE 飛雲河（兩船輪替）— 華北線進/出口 週五結關 靠泊66W｜出口職代：邱台美｜進口職代：邱台美／顏佳怡',
+                                  'NOS 寧波遠洋（世運）— NEW MINGZHOU 12 新明洲12 寧波線進口 週一結關 靠泊68W｜進口職代：顏佳怡',
+                                  'NOS 寧波遠洋（世運）— NING YUAN YONG AN 寧遠永安 寧波線進口 週四結關 靠泊68W｜進口職代：顏佳怡',
+                                  'KMTC 式邦 KTH-N — 台灣香港線進口 靠泊70W｜進口職代：薛愛倫',
+                                  'KMTC 式邦 CI5 — 華中北韓國至東印度線進口 靠泊63W｜進口職代：薛愛倫',
+                                  'MSL 民生（HAI MEN 海門）— 上海寧波線進口 靠泊42W｜進口職代：顏佳怡',
+                                  '航昇威仕總代理化學船（DAISY）進出口｜職代：顏佳怡',
+                                  '航昇威仕總代理散雜貨船（TRACY）出口｜職代：薛愛倫',
+                                ]
+                              }],
+                              color:'c-mem', children:[] },
                             { id:'dc3', name:'薛愛倫', title:'文件專員', duty:'文件', grade:'專員', directManager:'docdm',
                               resps:[{desc:'', tasks:[
-                                '製作出口結關及進口海關艙單相關文件',
-                                '辦理進出口海關文件作業',
+                                '負責 KMTC 式邦、SNL 萬通、ESL 世運等航線進出口文件作業',
+                                '負責散雜貨船進出口文件，含提單製作、換單、艙單上傳及退關處理',
+                                '負責貨櫃船進出口文件，含系統資料導入、准單申請及裝船清表上傳',
                               ]}],
-                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
+                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[
+                                {
+                                  title:'負責航線總覽',
+                                  desc:'',
+                                  steps:[
+                                    'KMTC 式邦 KTH-S 釜山線 進出口 — W#70 週五結關｜進口職代：陽妮潔／出口職代：邱台美',
+                                    'SNL 萬通 SCT 華中線（SNL 出船）出口 — W#78&69 週二結關｜職代：邱台美／顏佳怡',
+                                    'SNL 萬通 NT1 & ST2（SITC 出船）出口 — W#78&69 週二/週五結關｜職代：邱台美／顏佳怡',
+                                    'ESL 世運 進口 — 不定期船｜職代：顏佳怡',
+                                    '散雜貨船（總代理負責人：洪映芬）進口｜職代：陽妮潔',
+                                    '貨櫃船（總代理負責人：林虹君／蘇敉瑤）進出口｜進口職代：顏佳怡／出口職代：陽妮潔',
+                                  ]
+                                },
+                                {
+                                  title:'散雜貨船 — 進口作業流程',
+                                  desc:'總代理負責人：洪映芬',
+                                  steps:[
+                                    '收到總代理提供的國外艙單或提單',
+                                    '將必要資料輸入全中系統',
+                                    '列印小提單給報關行核對',
+                                    '報關行核對完成後上傳 EDI',
+                                    '待報關行報關碰檔後，船到前通知關務申請卸貨准單',
+                                    '開立小提單製作費發票，待總代理通知可放貨後，請報關行來繳費換單',
+                                    '換單費交予會計；正本提單／銀行擔保／電放提單交予總代理',
+                                    '如有短卸或溢卸，收到公證報告後確認貨主是否辦理，確認後才向海關遞交短溢卸報告書',
+                                  ]
+                                },
+                                {
+                                  title:'散雜貨船 — 出口作業流程',
+                                  desc:'總代理負責人：洪映芬',
+                                  steps:[
+                                    '收到總代理船期通知，確認貨主數量，分配 SO 號碼給各報關行',
+                                    '報關行提供 SO 資料後，製作出口提單及大副簽收單（G2 OCEAN 使用其系統）',
+                                    '提供出口提單草稿給報關行核對',
+                                    '船開前提供大副簽收單及出口艙單給現場人員及關務，上傳出口裝船清表',
+                                    '待報關行與船東雙方確認提單內容無誤後，等總代理通知放單後刷單，提單交總代理簽名',
+                                    '通知報關行來領單，開立文件製作費用（中鋼貨主免收費）',
+                                    '如裝運中有不良品退關，提供退關報告給報關行辦理',
+                                    '其他：協助換單（一程換二程）發票開立、協助申請大陸船員入台證資料輸入',
+                                  ]
+                                },
+                                {
+                                  title:'貨櫃船 — 進口作業流程',
+                                  desc:'總代理負責人：林虹君／蘇敉瑤',
+                                  steps:[
+                                    '收到總代理提供的進口資料檔案，導入全中系統',
+                                    '核對櫃號、櫃型、櫃數是否與船圖一致',
+                                    '上傳進口資料至關貿，發送相關文件給碼頭及總代理人員',
+                                    '如為主體船，確認總櫃數無誤後申請卸貨准單',
+                                    '船開後查詢加封封條費用，單據填寫後交予會計',
+                                  ]
+                                },
+                                {
+                                  title:'貨櫃船 — 出口作業流程',
+                                  desc:'總代理負責人：林虹君／蘇敉瑤',
+                                  steps:[
+                                    '收到總代理提供的出口 BOOKING，製作 SUMMARY',
+                                    '製作特殊櫃艙單',
+                                    '查詢單一窗口，確認每票 SO 出口放行資訊',
+                                    '待出口櫃進站，碼頭提供櫃表後核對相關內容',
+                                    '全數放行後上傳出口裝船清表',
+                                    '如需退關或退轉，等總代理通知後辦理後續流程',
+                                  ]
+                                },
+                              ],
+                              color:'c-mem', children:[] },
                             { id:'dc4', name:'李俊賢', title:'關務專員', duty:'關務', grade:'專員', directManager:'docdm',
                               resps:[{desc:'', tasks:[
                                 '維護全中資訊 EDI 系統船舶基本檔、航次資料及進出口表頭傳送',
@@ -674,10 +947,10 @@ const data = {
                       resps:[{desc:'', tasks:[
                         '開發及評估國外代理能否適用',
                         '船公司的熟悉及選用',
-                        '開發客戶，並留意客戶的經營情況及誠信，是否繼續服務',
+                        '開發客戶，持續評估客戶經營狀況與信用，決定服務延續',
                         '授權讓部門主管來接手工作操作',
-                        '對地區的廠商熟悉，並能隨時解決業務的問題',
-                        '留意部門同事的心情及對事的適任承受度',
+                        '熟悉區域廠商生態，隨時協助解決業務問題',
+                        '關注部門同仁工作狀態及職能適任情況',
                         '對應收及應付帳款的審核',
                       ]}],
                       permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
@@ -692,7 +965,7 @@ const data = {
                                 '訂艙',
                                 '教導進口文件人員進口操作',
                                 '教導外場操作「裝船通知書」',
-                                '留意船隻動態及即時回覆客戶',
+                                '監控船隻動態，即時回覆客戶詢問',
                                 '協助業務應收帳款及單筆利潤的分享',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
@@ -724,10 +997,10 @@ const data = {
                               color:'c-mem', children:[] },
                             { id:'fro3', name:'郭永諒', title:'現場專員', duty:'現場', grade:'專員', directManager:'frvp',
                               resps:[{desc:'外場操作', tasks:[
-                                '針對液袋的鋪裝及庫存',
-                                '工廠監裝及照片整理',
-                                '每周及每月提供 HOYER / PGF 的液袋庫存表',
-                                '針對液袋客戶的拖車及報關流程安排',
+                                '負責液袋鋪裝作業及庫存管理',
+                                '執行工廠監裝作業及照片整理歸檔',
+                                '每週及每月編製 HOYER／PGF 液袋庫存報表',
+                                '安排液袋客戶之拖車及報關流程',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-mem', children:[] },
@@ -780,7 +1053,7 @@ const data = {
                                 {desc:'', tasks:[
                                   '每週四交鋼鐵市場的WEEKLY REPORT給船東Hyundai Glovis（每日蒐集競爭者船隻動態製成週報/統計表）',
                                   '如承攬有承接到鋼鐵貨洽Hyundai Glovis的船出口，負責處理出口運費稅事宜（幫船東申請減免2%運費稅）',
-                                  'Hyundai Glovis船東來訪，幫忙接待、晚宴、準備伴手禮等瑣事',
+                                  'Hyundai Glovis 船東來訪時，執行接待及晚宴安排、伴手禮備置等事宜',
                                 ]},
                               ],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
@@ -799,9 +1072,9 @@ const data = {
                             { id:'cho3', name:'蘇崇瑋', title:'租船經紀文件專員', duty:'租船經紀文件', grade:'專員', directManager:'chvp',
                               resps:[
                                 {desc:'', tasks:[
-                                  '送/發/換提單給客人和船公司',
+                                  '辦理提單寄送、發放及換單作業',
                                   '協助高雄總公司各部門列印提單',
-                                  '協助拜船東的訪台證',
+                                  '協助辦理船東訪台證申請',
                                 ]},
                                 {desc:'外務', tasks:[
                                   '外務',
@@ -838,99 +1111,153 @@ const data = {
                           color:'c-chem',
                           children:[
                             { id:'chs1', name:'趙玉如', title:'進口文件', duty:'進口文件', grade:'專員', directManager:'cham',
-                              resps:[
-                                {desc:'進口文件', tasks:[
-                                  '進口OP',
-                                  '提供進口船公司切結、進口客戶到貨通知/費用明細/還櫃通知',
-                                  '接收各國代理到貨通知，更新REAL SYSTEM',
-                                  '開發票、船公司換單',
-                                  '結算HOYER每月進口櫃子延滯費，更新進口櫃子動態報表',
-                                  '提供每月進口報表',
-                                  '聯華氣體櫃的空櫃退運安排：等待聯華通知退運日期，Linde通知目的港後排船訂艙',
-                                  '新加坡提供合約價格與PIR後，繕打DG申報書，連同PIR提供給船公司',
-                                  'S/O下來後，繕打裝船通知書給聯華、報關行、新加坡櫃東、出口文件',
-                                  '巴斯夫自有櫃進出口：提供進口INV & P/L',
-                                  '開JOB#，提供出口SHIPPING ADVICE給櫃東，更新系統',
-                                  '開操作費USD550台幣發票',
-                                  '電子加熱及食品空櫃退運安排',
-                                  '協助業務所攬的進口業務訂艙和客人以及代理聯繫',
-                                ]},
-                                {desc:'出口文件', tasks:[
-                                  '製作HBL核對給客戶',
-                                  '上傳MBL作法給船公司',
-                                  '核對/修改HBL和MBL',
-                                  '更新船期給客戶',
-                                  'Key Hoyer系統-Real system',
-                                  '發HBL及請款付給船公司及領MBL',
-                                  '通知台北印單送單事宜',
-                                  '發提單掃描檔給客戶和代理',
-                                  '開發票跟客戶請款',
-                                  '整理銷帳資料給會計',
-                                ]},
-                              ],
+                              resps:[{desc:'', tasks:[
+                                '執行進口操作，辦理到貨通知、費用明細、還櫃通知及換單開票',
+                                '處理 Hoyer 系統更新、延滯費結算、空櫃退運及 DG 申報等進口事務',
+                                '製作出口 HBL／MBL，辦理換單、請款及銷帳資料整理',
+                              ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[
+                                {
+                                  title:'進口文件作業流程',
+                                  desc:'',
+                                  steps:[
+                                    '執行進口操作作業',
+                                    '提供進口船公司切結書，發送客戶到貨通知、費用明細及還櫃通知',
+                                    '接收各國代理到貨通知，更新 Real System 資料',
+                                    '開立發票及辦理船公司換單',
+                                    '結算 Hoyer 每月進口延滯費，更新進口櫃動態報表',
+                                    '提供每月進口作業報表',
+                                    '安排聯華氣體空櫃退運（等待通知退運日期後排船訂艙）',
+                                    '繕打 DG 申報書，連同 PIR 提供予船公司',
+                                    'S/O 核發後，繕打裝船通知書發送聯華、報關行等相關單位',
+                                    '辦理巴斯夫自有櫃進出口，提供進口 INV & P/L',
+                                    '建立 Job No.，提供出口 Shipping Advice 予櫃東並更新系統',
+                                    '開立操作費 USD 550 台幣發票',
+                                    '安排電子加熱及食品空櫃退運',
+                                    '協助業務進口訂艙及聯繫客戶與代理',
+                                  ]
+                                },
+                                {
+                                  title:'出口文件作業流程',
+                                  desc:'',
+                                  steps:[
+                                    '製作 HBL 並核對後提供客戶確認',
+                                    '上傳 MBL 作法至船公司',
+                                    '核對並修改 HBL 與 MBL',
+                                    '更新船期並通知客戶',
+                                    '維護 Hoyer 系統（Real System）資料登錄',
+                                    '發送 HBL、請款並付款予船公司，領取 MBL',
+                                    '通知台北辦公室印單及送單事宜',
+                                    '發送提單掃描檔予客戶及代理',
+                                    '開立發票並向客戶請款',
+                                    '整理銷帳資料，提交會計部門',
+                                  ]
+                                },
+                              ],
                               color:'c-mem', children:[] },
                             { id:'chs2', name:'潘綵瑄', title:'貨櫃控制', duty:'貨櫃控制', grade:'專員', directManager:'cham',
                               resps:[{desc:'控櫃操作', tasks:[
-                                'Key SHIPPING ADVICE等相關報價資料',
-                                'Key DG申報書',
-                                '安排櫃子南北拖',
-                                '更新Hoyer系統',
-                                '平時有DOOR SERVICE需幫忙詢拖車費，需幫忙訂艙、詢價等業務上的工作',
+                                '輸入 Shipping Advice 等相關報價資料',
+                                '製作危險品（DG）申報書',
+                                '安排櫃體南北拖運作業',
+                                '更新 Hoyer 系統資料',
+                                '辦理 Door Service 業務之拖車費詢問、訂艙及詢價等作業',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-mem', children:[] },
                             { id:'chs3', name:'林詩倩', title:'操作', duty:'操作', grade:'專員', directManager:'cham',
-                              resps:[
-                                {desc:'操作', tasks:[
-                                  '訂位表更新','櫃租詢價及議價','更新海運費、海運費議價','船期安排','訂艙',
-                                  '初步DG送審','跟催確認訂艙','出貨櫃子安排和確認規格','批價費用',
-                                  '確認系統內容出單','處理爭議費用','排解船公司問題','排解客戶出貨問題','排解櫃東問題',
-                                ]},
-                                {desc:'', tasks:[
-                                  '分擔部份業務協理的顧客服務工作（訂艙、船期、詢價、客訴等事務）',
-                                  '負責FILING上傳從台灣、柬埔寨、越南出口至美國線的運費',
-                                ]},
-                              ],
+                              resps:[{desc:'', tasks:[
+                                '負責化學櫃出口操作，含訂位、訂艙、DG 送審、費用批價及出單',
+                                '協調排解船公司、客戶及櫃東問題，分擔業務協理顧客服務工作',
+                                '負責台灣、柬埔寨、越南出口至美國線運費 Filing 上傳',
+                              ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'化學櫃出口操作流程',
+                                desc:'',
+                                steps:[
+                                  '更新訂位表資料',
+                                  '執行櫃租詢價及議價',
+                                  '更新海運費費率並執行議價',
+                                  '安排出貨船期並辦理訂艙',
+                                  '辦理 DG 初步送審並跟催確認',
+                                  '安排出貨貨櫃並確認規格',
+                                  '審批費用',
+                                  '確認系統內容後執行出單',
+                                  '處理爭議費用',
+                                  '協調排解船公司、客戶出貨及櫃東問題',
+                                ]
+                              }],
                               color:'c-mem', children:[] },
                             { id:'chs4', name:'李芝瑜', title:'操作', duty:'操作', grade:'專員', directManager:'cham',
-                              resps:[{desc:'操作', tasks:[
-                                '訂位表更新','櫃租詢價及議價','更新海運費、海運費議價','船期安排','訂艙',
-                                '初步DG送審','跟催確認訂艙','出貨櫃子安排和確認規格','批價費用',
-                                '確認系統內容出單','處理爭議費用','排解船公司問題','排解客戶出貨問題','排解櫃東問題',
+                              resps:[{desc:'', tasks:[
+                                '負責化學櫃出口操作，含訂位、訂艙、DG 送審、費用批價及出單',
+                                '協調排解船公司、客戶及櫃東問題',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'化學櫃出口操作流程',
+                                desc:'',
+                                steps:[
+                                  '更新訂位表資料',
+                                  '執行櫃租詢價及議價',
+                                  '更新海運費費率並執行議價',
+                                  '安排出貨船期並辦理訂艙',
+                                  '辦理 DG 初步送審並跟催確認',
+                                  '安排出貨貨櫃並確認規格',
+                                  '審批費用',
+                                  '確認系統內容後執行出單',
+                                  '處理爭議費用',
+                                  '協調排解船公司、客戶出貨及櫃東問題',
+                                ]
+                              }],
                               color:'c-mem', children:[] },
                             { id:'chs5', name:'葉詩怡', title:'文件專員', duty:'出口文件', grade:'專員', directManager:'cham',
-                              resps:[{desc:'出口文件', tasks:[
-                                '製作HBL核對給客戶',
-                                '上傳MBL作法給船公司',
-                                '核對/修改HBL和MBL',
-                                '更新船期給客戶',
-                                'Key Hoyer系統-Real system',
-                                '發HBL及請款付給船公司及領MBL',
-                                '通知台北印單送單事宜',
-                                '發提單掃描檔給客戶和代理',
-                                '開發票跟客戶請款',
-                                '整理銷帳資料給會計',
+                              resps:[{desc:'', tasks:[
+                                '製作並核對 HBL／MBL，辦理換單、發送提單及向客戶請款',
+                                '更新船期通知客戶，維護 Hoyer 系統，整理銷帳資料提交會計',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'出口文件作業流程',
+                                desc:'',
+                                steps:[
+                                  '製作 HBL 並核對後提供客戶確認',
+                                  '上傳 MBL 作法至船公司',
+                                  '核對並修改 HBL 與 MBL',
+                                  '更新船期並通知客戶',
+                                  '維護 Hoyer 系統（Real System）資料登錄',
+                                  '發送 HBL、請款並付款予船公司，領取 MBL',
+                                  '通知台北辦公室印單及送單事宜',
+                                  '發送提單掃描檔予客戶及代理',
+                                  '開立發票並向客戶請款',
+                                  '整理銷帳資料，提交會計部門',
+                                ]
+                              }],
                               color:'c-chem', children:[] },
                             { id:'chs5a', name:'林崇欣', title:'文件專員', duty:'出口文件', grade:'專員', directManager:'cham',
-                              resps:[{desc:'出口文件', tasks:[
-                                '製作HBL核對給客戶',
-                                '上傳MBL作法給船公司',
-                                '核對/修改HBL和MBL',
-                                '更新船期給客戶',
-                                'Key Hoyer系統-Real system',
-                                '發HBL及請款付給船公司及領MBL',
-                                '通知台北印單送單事宜',
-                                '發提單掃描檔給客戶和代理',
-                                '開發票跟客戶請款',
-                                '整理銷帳資料給會計',
+                              resps:[{desc:'', tasks:[
+                                '製作並核對 HBL／MBL，辦理換單、發送提單及向客戶請款',
+                                '更新船期通知客戶，維護 Hoyer 系統，整理銷帳資料提交會計',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                              sops:[{
+                                title:'出口文件作業流程',
+                                desc:'',
+                                steps:[
+                                  '製作 HBL 並核對後提供客戶確認',
+                                  '上傳 MBL 作法至船公司',
+                                  '核對並修改 HBL 與 MBL',
+                                  '更新船期並通知客戶',
+                                  '維護 Hoyer 系統（Real System）資料登錄',
+                                  '發送 HBL、請款並付款予船公司，領取 MBL',
+                                  '通知台北辦公室印單及送單事宜',
+                                  '發送提單掃描檔予客戶及代理',
+                                  '開立發票並向客戶請款',
+                                  '整理銷帳資料，提交會計部門',
+                                ]
+                              }],
                               color:'c-mem', children:[] },
                           ]
                         },
@@ -983,14 +1310,14 @@ const data = {
                 },
                 { id:'anav', name:'謝宛真', title:'航昇船務副理', duty:'航昇船務會計', grade:'副經理', directManager:'gm',
                   resps:[{desc:'', tasks:[
-                    '航昇 Chartering 會計業務及國稅局申報',
-                    '航昇外帳出差費管理',
-                    '航昇內帳與外帳檢核及調整',
-                    '航昇與集團公司間之往來帳處',
-                    '航昇 / Chartering 年度損益統計',
-                    '越南公司財務報表統整',
-                    '境外公司文件處理',
-                    '協助總經理交辦事項',
+                    '負責航昇租船部會計業務及國稅局申報',
+                    '管理航昇外帳出差費',
+                    '檢核及調整航昇內帳與外帳',
+                    '處理航昇與集團公司間往來帳務',
+                    '編製航昇及租船部年度損益統計',
+                    '統整越南公司財務報表',
+                    '處理境外公司相關文件',
+                    '執行總經理交辦事項',
                   ]}],
                   permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                   color:'c-acct',
@@ -1010,29 +1337,29 @@ const data = {
                       color:'c-mem', children:[] },
                     { id:'acm1', name:'孫玉珊', title:'化學櫃租賃會計', duty:'化學櫃租賃會計', grade:'專員', directManager:'anav', funcManager:'chvp2',
                       resps:[{desc:'', tasks:[
-                        'Hoyer的國外帳',
-                        '跟Hoyer申請在台灣的代收代付部份',
-                        'HOYER 內帳',
-                        '航昇船務之外帳',
+                        '處理 Hoyer 國外帳務',
+                        '辦理 Hoyer 台灣代收代付申請作業',
+                        '負責 Hoyer 內帳處理',
+                        '負責航昇船務外帳處理',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                       color:'c-mem', children:[] },
                     { id:'acm2', name:'郭淑慧', title:'化學櫃租賃會計', duty:'化學櫃租賃會計', grade:'專員', directManager:'anav', funcManager:'chvp2',
                       resps:[{desc:'', tasks:[
-                        'Hoyer的國外帳',
-                        '跟Hoyer申請在台灣的代收代付部份',
-                        'HOYER 內帳',
-                        '航昇船務之外帳',
+                        '處理 Hoyer 國外帳務',
+                        '辦理 Hoyer 台灣代收代付申請作業',
+                        '負責 Hoyer 內帳處理',
+                        '負責航昇船務外帳處理',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                       color:'c-mem', children:[] },
                     { id:'afr', name:'阮翊甯', title:'承攬會計', duty:'承攬會計', grade:'專員', directManager:'anav', funcManager:'frvp',
                       resps:[{desc:'會計', tasks:[
-                        '報關行及拖車及鋪袋場及各月結會計帳的處理',
-                        '每個月的催收郵件及HOYER 國外帳處理',
-                        '單筆帳的結檔及分析表列印',
-                        '對銀行及國內/外支付單的付款及客戶的收款入帳',
-                        '對內部進出口帳明細的核對',
+                        '處理報關行、拖車、鋪袋場及各月結會計帳務',
+                        '每月辦理催收郵件發送及 Hoyer 國外帳處理',
+                        '執行單筆帳結檔及分析表列印',
+                        '辦理銀行及國內外支付單付款，處理客戶收款入帳',
+                        '核對內部進出口帳明細',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                       color:'c-acct',
@@ -1051,7 +1378,7 @@ const data = {
   ]
 };
 
-const NODE_W = 120, NODE_H = 52, LEVEL_H = 90, COL_GAP = 18;
+const NODE_W = 130, NODE_H = 56, LEVEL_H = 95, COL_GAP = 20;
 const _0x3c4d = new Set();
 let _0x1a2b = {};
 let scale = 1, panX = 0, panY = 0;
@@ -1111,8 +1438,8 @@ function _0x9c0d() {
   const titleY = _0x1a2b[data.id] ? _0x1a2b[data.id].y - 48 : 30;
   const titleColor = document.body.classList.contains('light') ? '#1E1E1E' : '#D4D4D4';
   const titleDim   = document.body.classList.contains('light') ? '#888888' : '#808080';
-  html += `<text x="${titleX}" y="${titleY}" text-anchor="middle" font-size="18" font-weight="500" fill="${titleColor}" font-family="inherit" letter-spacing="2">航昇關係企業組織圖</text>`;
-  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="12" fill="${titleDim}" font-family="inherit">2026 年 3 月</text>`;
+  html += `<text x="${titleX}" y="${titleY}" text-anchor="middle" font-size="22" font-weight="500" fill="${titleColor}" font-family="inherit" letter-spacing="2">航昇關係企業組織圖</text>`;
+  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="14" fill="${titleDim}" font-family="inherit">2026 年 3 月</text>`;
 
   function _0x1e2f(node) {
     if (_0x3c4d.has(node.id) || !node.children || !node.children.length) return;
@@ -1157,15 +1484,15 @@ function _0x9c0d() {
 
     const _0x3955 = node.duty || node.title || null;
     const nameY = _0x3955 ? y+20 : y+30;
-    html += `<text x="${x}" y="${nameY}" text-anchor="middle" font-size="13" font-weight="${_0x4a77}" fill="${nodeText}" font-family="inherit">${node.name}</text>`;
+    html += `<text x="${x}" y="${nameY}" text-anchor="middle" font-size="15" font-weight="${_0x4a77}" fill="${nodeText}" font-family="inherit">${node.name}</text>`;
     if (_0x3955) {
-      html += `<text x="${x}" y="${y+35}" text-anchor="middle" font-size="10" fill="${nodeSub}" font-family="inherit">${_0x3955}</text>`;
+      html += `<text x="${x}" y="${y+35}" text-anchor="middle" font-size="12" fill="${nodeSub}" font-family="inherit">${_0x3955}</text>`;
     }
 
     if (hasKids) {
       const btnX = x, btnY = y + NODE_H;
       html += `<circle cx="${btnX}" cy="${btnY}" r="8" fill="${actualFill}" stroke="${stroke}" stroke-width="0.5"/>`;
-      html += `<text x="${btnX}" y="${btnY+4}" text-anchor="middle" font-size="11" fill="${nodeText}" font-family="inherit">${isCol?'+':'−'}</text>`;
+      html += `<text x="${btnX}" y="${btnY+4}" text-anchor="middle" font-size="13" fill="${nodeText}" font-family="inherit">${isCol?'+':'−'}</text>`;
     }
     html += `</g>`;
 
@@ -1389,6 +1716,27 @@ const EMP_ID = {
   '廖婕婷':'152','陳立農':'139','李惠敏':'175','王湞潞':'172',
 };
 
+const EMP_NAME_EN = {
+  '魏程師':'James Wei','謝淑瑤':'Jennifer Hsieh','洪映芬':'Stella Hung','邱台美':'Rita Chiu',
+  '謝佩芬':'Olivia Hsieh','方麗娜':'Eleanor Fang','許佳榮':'C.J. Hsu','孔振蕊':'Echo Kung',
+  '林虹君':'Ivy Lin','呂文祺':'Sam Lu','羅一平':'Jeffery Lo','康靈祺':'Daisy Kang',
+  '孫玉珊':'Sandra Sun','魏嘉俊':'Terry Wei','廖永照':'Joseph Liao','趙玉如':'Coral Chao',
+  '謝宛真':'Lydia Hsieh','呂文漪':'Miranda Lu','翁慧君':'Qunna Weng','徐淑玲':'Celine Hsu',
+  '潘綵瑄':'Annie Pan','李一中':'Raymond Lee','紀凱銘':'Kevin Chi','許玉燕':'Annie Hsu',
+  '李岱玲':'Delia Li','郭淑慧':'Sophy Kuo','賴雅婷':'Hedy Lai','葉容禎':'Heather Yeh',
+  '王仁育':'Sue Wang','曾健倫':'Jason Wang','曾慧怡':'Cynthia Tseng',
+  '王書婷':'Brice Tseng','蘇崇瑋':'Jaro Su','林詩倩':'Flora Lin','李維玲':'Vicky Li',
+  '陽妮潔':'Fionn Yang','李俊賢':'Luke Li','張淑娟':'Betty Chang','蘇敉瑤':'Tracy Su',
+  '盧麗雯':'Lillian Lu','祝偉傑':'Arthur Chu','顏佳怡':'Jenny Yan','薛愛倫':'Allen Shay',
+  '陳怡分':'Judy Chen','林崇欣':'Nancy Lin','周錦絹':'Tracy Chou','葉盈儀':'Susan Yeh',
+  '簡麗玲':'Tina Chien','陳韋伶':'Amber Chen','蘇慶星':'Scottie Su','何偉群':'Caesar Ho',
+  '祝彩蘋':'Veronica Mao','王湞潞':'Cathy Wang','陸藝':'Louis Lu','鄭文傑':'Neil Cheng',
+  '劉昌城':'Mark Liu','凌曉恬':'Cathy Ling','賴芊華':'Jamie Lai','劉新喜':'Simon Liu',
+  '李芝瑜':'Emma Li','阮翊甯':'Nora Juan','葉詩怡':'Maggie Yeh','陳宥如':'Ruby Chen',
+  '陳盈瑄':'Kelly Chen','梁季暉':'Noah Lian','陳秉寬':'Jack Chen','李惠敏':'Emma Li',
+  '郭永諒':'David Kuo','廖婕婷':'Kay Liao','陳立農':'Nick Chen',
+};
+
 function _0x9a0b(node) {
   
   const svgNode = document.querySelector(`.node-group[data-id="${node.id}"]`);
@@ -1396,15 +1744,16 @@ function _0x9a0b(node) {
     ? (svgNode.dataset.stroke || (COLORS[node.color] || COLORS['c-mem']).stroke)
     : (COLORS[node.color] || COLORS['c-mem']).stroke;
   const empId = EMP_ID[node.name] || '';
+  const nameEn = EMP_NAME_EN[node.name] || '';
 
   const av = document.getElementById('dp-avatar');
   av.textContent = empId || node.name.replace(/[／/、，, ]/g,'').slice(0,2);
   av.style.background = stroke + '22';
   av.style.color = stroke;
   av.style.border = `0.5px solid ${stroke}`;
-  av.style.fontSize = empId ? '13px' : '13px';
-  document.getElementById('dp-name').textContent  = node.name;
-  document.getElementById('dp-title').textContent = node.title || node.duty || '';
+  av.style.fontSize = '13px';
+  document.getElementById('dp-name').textContent = node.name;
+  document.getElementById('dp-title').textContent = nameEn ? `${nameEn}　${node.title || node.duty || ''}` : (node.title || node.duty || '');
 
   const duty  = node.duty  ?? _0x7a9b(node.title).duty;
   const grade = node.grade ?? _0x7a9b(node.title).grade;
@@ -1420,7 +1769,7 @@ function _0x9a0b(node) {
     node.resps.forEach((r, i) => {
       html += _0x8c0d();
       if (node.resps.length > 1) {
-        html += `<div style="font-size:11px;color:#569CD6;font-weight:600;margin-bottom:6px;letter-spacing:0.05em;">職責 ${i+1}</div>`;
+        html += `<div style="font-size:14px;color:#569CD6;font-weight:600;margin-bottom:6px;letter-spacing:0.05em;">職責 ${i+1}</div>`;
       }
       if (r.desc) html += row('職責描述', r.desc, 'var(--text)');
       if (r.tasks && r.tasks.length) {
@@ -1487,19 +1836,19 @@ function section(rows) {
   return `<div style="display:flex;flex-direction:column;gap:2px;">${rows.join('')}</div>`;
 }
 function row(label, value, color) {
-  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:15px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
     <span style="color:var(--text-dim);flex-shrink:0;margin-right:12px;">${label}</span>
     <span style="color:${color};text-align:right;">${value}</span>
   </div>`;
 }
 function _0xa023(label, name, id, _0xd399) {
-  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:15px;padding:4px 0;border-bottom:0.5px solid var(--row-border,#2A2A2A);">
     <span style="color:var(--text-dim);flex-shrink:0;margin-right:12px;">${label}</span>
     <span class="mgr-link" data-id="${id}" style="color:${_0xd399};text-align:right;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;">${name}</span>
   </div>`;
 }
 function _0xb145(label) {
-  return `<div style="font-size:11px;color:var(--text-dim);margin:6px 0 4px;letter-spacing:0.05em;">${label}</div>`;
+  return `<div style="font-size:14px;color:var(--text-dim);margin:6px 0 4px;letter-spacing:0.05em;">${label}</div>`;
 }
 function sopAccordion(sops, stroke) {
   const id = 'sop-acc-' + Math.random().toString(36).slice(2,7);
@@ -1509,31 +1858,31 @@ function sopAccordion(sops, stroke) {
     const steps = s.steps && s.steps.length
       ? `<ol style="padding-left:16px;display:flex;flex-direction:column;gap:4px;margin-top:6px;">` +
         s.steps.map(step =>
-          `<li style="font-size:12px;color:var(--text);line-height:1.6;">${step}</li>`
+          `<li style="font-size:15px;color:var(--text);line-height:1.6;">${step}</li>`
         ).join('') + `</ol>`
       : '';
     inner += `
       <div style="border:0.5px solid var(--row-border,#2A2A2A);border-radius:6px;overflow:hidden;margin-bottom:6px;">
         <button onclick="(function(){var c=document.getElementById('${sid}');var a=document.getElementById('${sid}-arrow');var open=c.style.display!=='none';c.style.display=open?'none':'block';a.style.transform=open?'rotate(0deg)':'rotate(90deg)';})()"
-          style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg-btn,#252526);border:none;cursor:pointer;color:var(--text);font-size:12px;font-family:inherit;text-align:left;">
+          style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg-btn,#252526);border:none;cursor:pointer;color:var(--text);font-size:15px;font-family:inherit;text-align:left;">
           <span style="font-weight:500;">${s.title || ('程序 ' + (i+1))}</span>
-          <span id="${sid}-arrow" style="font-size:10px;color:${stroke};transition:transform 0.2s;display:inline-block;">▶</span>
+          <span id="${sid}-arrow" style="font-size:13px;color:${stroke};transition:transform 0.2s;display:inline-block;">▶</span>
         </button>
         <div id="${sid}" style="display:none;padding:8px 10px 10px;background:var(--bg-canvas,#1E1E1E);">
-          ${s.desc ? `<div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;">${s.desc}</div>` : ''}
+          ${s.desc ? `<div style="font-size:14px;color:var(--text-dim);margin-bottom:4px;">${s.desc}</div>` : ''}
           ${steps}
         </div>
       </div>`;
   });
   return `
-    <div style="font-size:11px;color:var(--text-dim);margin:6px 0 6px;letter-spacing:0.05em;">工作流程</div>
+    <div style="font-size:14px;color:var(--text-dim);margin:6px 0 6px;letter-spacing:0.05em;">工作流程</div>
     <div>${inner}</div>`;
 }
 
 function list(items, color) {
   return `<div style="display:flex;flex-direction:column;gap:3px;">` +
     items.map((t,i) =>
-      `<div style="font-size:12px;color:${color};line-height:1.6;display:flex;gap:6px;">
+      `<div style="font-size:15px;color:${color};line-height:1.6;display:flex;gap:6px;">
         <span style="color:var(--text-dim);flex-shrink:0;">${i+1}.</span>
         <span style="white-space:pre-wrap;">${t}</span>
       </div>`
@@ -1606,16 +1955,12 @@ function _0x7c8d() {
   const W = svg.clientWidth||800, H = svg.clientHeight||620;
   _0x1a2b = {};
   _0x7a8b(data, W/2, 110, _0x1a2b);
-  const xs = Object.values(_0x1a2b).map(p=>p.x);
-  const ys = Object.values(_0x1a2b).map(p=>p.y);
-  const minX = Math.min(...xs)-NODE_W/2-30;
-  const maxX = Math.max(...xs)+NODE_W/2+30;
-  const minY = Math.min(...ys)-20;
-  const maxY = Math.max(...ys)+NODE_H+30;
-  const contentW = maxX-minX, contentH = maxY-minY;
-  scale = Math.min((W*0.95)/contentW, (H*0.95)/contentH, 1);
-  panX = (W - contentW*scale)/2 - minX*scale;
-  panY = (H - contentH*scale)/2 - minY*scale;
+  scale = 0.6;
+  const pos = _0x1a2b['chairman'];
+  if (pos) {
+    panX = W/2 - pos.x * scale;
+    panY = H/2 - pos.y * scale;
+  }
   _0x9c0d();
 }
 function _0x9e0f() { scale=1; panX=0; panY=0; _0x7c8d(); }
@@ -1671,6 +2016,192 @@ document.getElementById('btn-theme').addEventListener('click', () => {
   const isLight = document.body.classList.toggle('light');
   document.getElementById('btn-theme').textContent = isLight ? '🌙' : '☀️';
   _0x9c0d();
+});
+
+// ── Tooltip 逐步導覽 ──
+const TOUR_STEPS = [
+  {
+    targetId: 'btn-zoomin',
+    title: '縮放畫面',
+    desc: '使用「＋放大」「－縮小」按鈕調整大小，或直接滾動滑鼠滾輪縮放。',
+    arrow: 'arrow-up', offsetX: -20, offsetY: 12,
+  },
+  {
+    targetId: 'btn-expand',
+    title: '展開 ／ 收合',
+    desc: '「全部展開」顯示所有成員；「全部收合」只保留主要層級。也可點擊節點底部的 ＋／－ 圓圈個別展開。',
+    arrow: 'arrow-up', offsetX: -20, offsetY: 12,
+  },
+  {
+    targetId: 'btn-reset',
+    title: '重設視角',
+    desc: '點擊「重設視角」回到預設中心位置。',
+    arrow: 'arrow-up', offsetX: -20, offsetY: 12,
+  },
+  {
+    targetId: 'canvas-wrap',
+    title: '拖曳平移',
+    desc: '在組織圖空白處按住拖曳，即可移動畫面，瀏覽更多節點。',
+    arrow: 'arrow-left', offsetX: 12, offsetY: -10,
+  },
+  {
+    targetId: 'canvas-wrap',
+    title: '點擊人員節點',
+    desc: '點擊人員節點時，畫面會以三色亮光標示考核關係：\n中藍 — 直屬主管\n暗綠 — 直屬下屬',
+    arrow: 'arrow-left', offsetX: 12, offsetY: 60,
+  },
+  {
+    targetId: 'dp-header',
+    title: '人員基本資訊',
+    desc: '小卡頂部顯示分機號碼、中文姓名及英文名稱與職稱。點擊右上角 ✕ 可關閉小卡。',
+    arrow: 'arrow-left', offsetX: 12, offsetY: 0,
+    requirePanel: true,
+  },
+  {
+    targetId: 'dp-body',
+    title: '職責與工作流程',
+    desc: '「工作任務」：做什麼。\n「工作流程」：怎麼做。',
+    arrow: 'arrow-left', offsetX: 12, offsetY: 40,
+    requirePanel: true,
+  },
+];
+
+let tourStep = 0;
+let tourActive = false;
+
+function tourGetTargetRect(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  return el.getBoundingClientRect();
+}
+
+function tourPosition(step) {
+  const tt = document.getElementById('tour-tooltip');
+  const rect = tourGetTargetRect(step.targetId);
+  if (!rect) return;
+
+  tt.className = '';
+  tt.classList.add(step.arrow);
+
+  const ttW = 260, ttH = tt.offsetHeight || 140;
+  let top, left;
+
+  if (step.arrow === 'arrow-up') {
+    top  = rect.bottom + step.offsetY;
+    left = rect.left   + step.offsetX;
+  } else if (step.arrow === 'arrow-down') {
+    top  = rect.top - ttH - 14 + step.offsetY;
+    left = rect.left + step.offsetX;
+  } else if (step.arrow === 'arrow-left') {
+    top  = rect.top  + step.offsetY;
+    left = rect.right + step.offsetX;
+  }
+
+  // clamp
+  left = Math.max(8, Math.min(left, window.innerWidth - ttW - 8));
+  top  = Math.max(8, Math.min(top,  window.innerHeight - ttH - 8));
+
+  tt.style.top  = top  + 'px';
+  tt.style.left = left + 'px';
+}
+
+function tourShow(idx) {
+  const step = TOUR_STEPS[idx];
+  const tt   = document.getElementById('tour-tooltip');
+  const ind  = document.getElementById('tour-step-indicator');
+  const title= document.getElementById('tour-title');
+  const desc = document.getElementById('tour-desc');
+  const next = document.getElementById('tour-next');
+
+  // remove previous highlight
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+
+  // 若需要面板開啟，自動觸發董事長節點
+  if (step.requirePanel) {
+    const chairmanPos = _0x1a2b && _0x1a2b['chairman'];
+    if (chairmanPos) {
+      _0x9a0b(chairmanPos.node);
+      _0xa1b2(chairmanPos.node);
+    }
+  }
+
+  const target = document.getElementById(step.targetId);
+  if (target) target.classList.add('tour-highlight');
+
+  ind.textContent  = `步驟 ${idx+1} ／ ${TOUR_STEPS.length}`;
+  title.textContent = step.title;
+  desc.innerHTML  = step.desc.replace(/\n/g, '<br>');
+  next.textContent  = idx < TOUR_STEPS.length - 1 ? '下一步 →' : '完成 ✓';
+
+  tt.classList.remove('hide');
+  setTimeout(() => tourPosition(step), step.requirePanel ? 320 : 0);
+}
+
+function tourEnd() {
+  document.getElementById('tour-backdrop').classList.add('hide');
+  document.getElementById('tour-tooltip').classList.add('hide');
+  document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+  // 關閉小卡
+  _0x1c2d && _0x1c2d();
+  tourActive = false;
+  setTimeout(() => {
+    const bd = document.getElementById('tour-backdrop');
+    const tt = document.getElementById('tour-tooltip');
+    if (bd) bd.remove();
+    if (tt) tt.remove();
+  }, 350);
+}
+
+function tourStart() {
+  tourActive = true;
+  tourStep = 0;
+  document.getElementById('tour-backdrop').classList.remove('hide');
+  setTimeout(() => tourShow(0), 120);
+}
+
+document.getElementById('tour-next').addEventListener('click', () => {
+  tourStep++;
+  if (tourStep >= TOUR_STEPS.length) { tourEnd(); return; }
+  tourShow(tourStep);
+});
+document.getElementById('tour-skip').addEventListener('click', tourEnd);
+
+// 載入後 500ms 啟動
+setTimeout(tourStart, 500);
+
+document.getElementById('btn-tour').addEventListener('click', () => {
+  // 若正在進行中先結束再重啟
+  if (tourActive) tourEnd();
+  // 重建遮罩和 tooltip（如已被移除）
+  if (!document.getElementById('tour-backdrop')) {
+    const bd = document.createElement('div');
+    bd.id = 'tour-backdrop';
+    document.body.prepend(bd);
+  }
+  if (!document.getElementById('tour-tooltip')) {
+    document.body.insertAdjacentHTML('afterbegin', `
+      <div id="tour-tooltip">
+        <div id="tour-step-indicator"></div>
+        <div id="tour-title"></div>
+        <div id="tour-desc"></div>
+        <div id="tour-actions">
+          <button id="tour-skip">跳過</button>
+          <button id="tour-next">下一步 →</button>
+        </div>
+      </div>`);
+    document.getElementById('tour-next').addEventListener('click', () => {
+      tourStep++;
+      if (tourStep >= TOUR_STEPS.length) { tourEnd(); return; }
+      tourShow(tourStep);
+    });
+    document.getElementById('tour-skip').addEventListener('click', tourEnd);
+  }
+  tourStart();
+});
+
+document.getElementById('intro-close') && document.getElementById('intro-close').addEventListener('click', () => {
+  const overlay = document.getElementById('intro-overlay');
+  if (overlay) { overlay.classList.add('hide'); setTimeout(() => overlay.remove(), 380); }
 });
 
 document.addEventListener('contextmenu', e => e.preventDefault());
