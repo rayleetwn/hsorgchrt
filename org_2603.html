@@ -452,8 +452,8 @@ const data = {
                             { id:'op-s1', name:'曾健倫', title:'船務操作經理', duty:'船務操作', grade:'經理', directManager:'op-c1',
                               resps:[{desc:'', tasks:[
                                 '負責乾散雜貨船日常船務操作，含詢價回覆、報價、訂單聯繫及文件製作',
-                                '負責油輪船日常船務操作，含詢價回覆、報價、訂單聯繫及文件製作',
                                 '製作並管理提單、艙單、NOR／SOF 及船東事項清單',
+                                '副總出差或休假時，代理管理乾散雜貨船組工作分配',
                               ]}],
                               permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                               color:'c-mem', children:[] },
@@ -491,6 +491,7 @@ const data = {
                             '回覆詢價及提供港口、裝卸相關資訊，辦理報價及供應商洽詢',
                             '與船長聯繫進港文件及碼頭作業要求，製作 NOR／SOF 及工作清單',
                             '定期發送到港通知，即時回報船舶動態，審核船帳',
+                            '副總出差或休假時，代理主持油化船組全組工作',
                           ]}],
                           permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                           color:'c-agency',
@@ -525,29 +526,25 @@ const data = {
                         },
                         { id:'op-d2', name:'呂文漪', title:'船務操作副理', duty:'船務操作', grade:'副經理', directManager:'op-vp',
                           resps:[{desc:'', tasks:[
-                            '統籌船東工作組業務及工作分配',
-                            '回覆各類相關詢價和諮詢信件',
-                            '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
-                            '任務完成回報',
-                            '船帳審核',
+                            '統籌管理所負責船組業務及工作分配',
+                            '回覆詢價及提供港口、裝卸相關資訊，辦理報價及供應商洽詢',
+                            '與船長聯繫進港文件及碼頭作業要求，製作 NOR／SOF 及工作清單',
+                            '定期發送到港通知，即時回報船舶動態，審核船帳',
+                            '副總出差或休假時，協助代理工作調度',
                           ]}],
                           permissions:['對部屬工作有檢查權','對部屬在工作中的爭議有裁判權','在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權','有對直屬部屬職務調配的建議權、任命的提名權和獎懲建議權','對所屬部屬的管理標準、業務標準和業績有考核評價權'],
                           color:'c-agency',
                           children:[
                             { id:'op-s8', name:'盧麗雯', title:'船務操作專員', duty:'船務操作', grade:'專員', directManager:'op-d2',
                               resps:[{desc:'', tasks:[
-                                '回覆各類相關詢價和諮詢信件',
-                                '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
-                                '任務完成回報',
-                                '船帳審核',
+                                '負責油化船日常船務操作，含詢價回覆、報價、文件製作及各單位聯繫',
+                                '製作提單、艙單，定期發送到港通知，即時回報船舶動態',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
                             { id:'op-s9', name:'陳盈瑄', title:'船務操作專員', duty:'船務操作', grade:'專員', directManager:'op-d2',
                               resps:[{desc:'', tasks:[
-                                '回覆各類相關詢價和諮詢信件',
-                                '與船長、船東、供應商以及各相關單位緊密聯繫有關船舶動態，以便順利完成任務',
-                                '任務完成回報',
-                                '船帳審核',
+                                '負責油化船日常船務操作，含詢價回覆、報價、文件製作及各單位聯繫',
+                                '製作提單、艙單，定期發送到港通知，即時回報船舶動態',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'], color:'c-mem', children:[] },
                           ]
@@ -971,17 +968,17 @@ const data = {
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-freight',
                               children:[
-                                { id:'fro1a', name:'陳宥如', title:'文件助理', duty:'文件', grade:'助理', directManager:'fro1',
-                                  resps:[{desc:'', tasks:[
-                                    '進出口文件的繕打',
-                                    '聯絡國外代理',
-                                    '簽發文件給客戶及核對進出口報單',
-                                    '提供應收帳款明細',
-                                    '寄發提單及發票',
-                                    '提供散裝船隻的動態及追蹤',
+
+                                { id:'fro3', name:'郭永諒', title:'現場專員', duty:'現場', grade:'專員', directManager:'fro1',
+                                  resps:[{desc:'外場操作', tasks:[
+                                    '負責液袋鋪裝作業及庫存管理',
+                                    '執行工廠監裝作業及照片整理歸檔',
+                                    '每週及每月編製 HOYER／PGF 液袋庫存報表',
+                                    '安排液袋客戶之拖車及報關流程',
                                   ]}],
                                   permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                                  color:'c-mem', children:[] },
+                                  color:'c-freight', children:[] },
+                                { id:'frb1a', name:'李旻娟', title:'文件助理', duty:'文件', grade:'助理', directManager:'fro1', color:'c-freight', children:[] },
                               ]
                             },
                             { id:'fro2', name:'蘇敉瑤', title:'文件出口主任', duty:'文件出口', grade:'主任', directManager:'frvp',
@@ -992,15 +989,6 @@ const data = {
                                 '提供應收帳款明細',
                                 '寄發提單及發票',
                                 '提供散裝船隻的動態及追蹤',
-                              ]}],
-                              permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                              color:'c-mem', children:[] },
-                            { id:'fro3', name:'郭永諒', title:'現場專員', duty:'現場', grade:'專員', directManager:'frvp',
-                              resps:[{desc:'外場操作', tasks:[
-                                '負責液袋鋪裝作業及庫存管理',
-                                '執行工廠監裝作業及照片整理歸檔',
-                                '每週及每月編製 HOYER／PGF 液袋庫存報表',
-                                '安排液袋客戶之拖車及報關流程',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
                               color:'c-mem', children:[] },
@@ -1018,9 +1006,19 @@ const data = {
                                 '客戶的進出口報價及流程安排及追蹤',
                               ]}],
                               permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                              color:'c-mem',
+                              color:'c-freight',
                               children:[
-                                { id:'frb1a', name:'李旻娟', title:'業務助理', color:'c-mem', children:[] },
+                                { id:'fro1a', name:'陳宥如', title:'業務助理', duty:'業務', grade:'助理', directManager:'frb1',
+                                  resps:[{desc:'', tasks:[
+                                    '進出口文件的繕打',
+                                    '聯絡國外代理',
+                                    '簽發文件給客戶及核對進出口報單',
+                                    '提供應收帳款明細',
+                                    '寄發提單及發票',
+                                    '提供散裝船隻的動態及追蹤',
+                                  ]}],
+                                  permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
+                                  color:'c-freight', children:[] },
                               ]
                             },
                           ]
@@ -1334,7 +1332,7 @@ const data = {
                         ]},
                       ],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                      color:'c-mem', children:[] },
+                      color:'c-acct', children:[] },
                     { id:'acm1', name:'孫玉珊', title:'化學櫃租賃會計', duty:'化學櫃租賃會計', grade:'專員', directManager:'anav', funcManager:'chvp2',
                       resps:[{desc:'', tasks:[
                         '處理 Hoyer 國外帳務',
@@ -1343,7 +1341,7 @@ const data = {
                         '負責航昇船務外帳處理',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                      color:'c-mem', children:[] },
+                      color:'c-acct', children:[] },
                     { id:'acm2', name:'郭淑慧', title:'化學櫃租賃會計', duty:'化學櫃租賃會計', grade:'專員', directManager:'anav', funcManager:'chvp2',
                       resps:[{desc:'', tasks:[
                         '處理 Hoyer 國外帳務',
@@ -1352,7 +1350,7 @@ const data = {
                         '負責航昇船務外帳處理',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                      color:'c-mem', children:[] },
+                      color:'c-acct', children:[] },
                     { id:'afr', name:'阮翊甯', title:'承攬會計', duty:'承攬會計', grade:'專員', directManager:'anav', funcManager:'frvp',
                       resps:[{desc:'會計', tasks:[
                         '處理報關行、拖車、鋪袋場及各月結會計帳務',
@@ -1362,11 +1360,8 @@ const data = {
                         '核對內部進出口帳明細',
                       ]}],
                       permissions:['在權限範圍內，有代表公司對外聯絡的權力','有對各項費用開支的審核權','對限額資金使用有批准權'],
-                      color:'c-acct',
-                      children:[
-                        { id:'afr1', name:'賴芊華', title:'承攬會計助理', duty:'承攬會計', grade:'助理', color:'c-mem', children:[] },
-                      ]
-                    },
+                      color:'c-acct', children:[] },
+                    { id:'afr1', name:'賴芊華', title:'承攬會計助理', duty:'承攬會計', grade:'助理', directManager:'anav', funcManager:'frvp', color:'c-acct', children:[] },
                   ]
                 },
               ]
@@ -1439,7 +1434,7 @@ function _0x9c0d() {
   const titleColor = document.body.classList.contains('light') ? '#1E1E1E' : '#D4D4D4';
   const titleDim   = document.body.classList.contains('light') ? '#888888' : '#808080';
   html += `<text x="${titleX}" y="${titleY}" text-anchor="middle" font-size="22" font-weight="500" fill="${titleColor}" font-family="inherit" letter-spacing="2">航昇關係企業組織圖</text>`;
-  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="14" fill="${titleDim}" font-family="inherit">2026 年 3 月</text>`;
+  html += `<text x="${titleX}" y="${titleY + 22}" text-anchor="middle" font-size="14" fill="${titleDim}" font-family="inherit">2026 年 4 月</text>`;
 
   function _0x1e2f(node) {
     if (_0x3c4d.has(node.id) || !node.children || !node.children.length) return;
@@ -1610,13 +1605,36 @@ function _0xa1b2(node) {
   const W = svgEl.clientWidth || 800;
   const H = svgEl.clientHeight || 620;
   const panelW = 320; 
-  const remainCX = panelW + (W - panelW) / 2; 
-  const remainCY = H / 2;                      
+  const viewW = W - panelW;
+  const viewCX = panelW + viewW / 2;
+  const viewCY = H / 2;
 
-  const pos = _0x1a2b[node.id];
-  if (pos) {
-    panX = remainCX - pos.x * scale;
-    panY = remainCY - (pos.y + NODE_H/2) * scale;
+  // Fit view to show all highlighted nodes (self + reviewers + reviewees)
+  const allHighlighted = [node.id, ...reviewers, ...reviewees];
+  const hlPositions = allHighlighted.map(id => _0x1a2b[id]).filter(Boolean);
+  
+  if (hlPositions.length > 0) {
+    const xs = hlPositions.map(p => p.x);
+    const ys = hlPositions.map(p => p.y);
+    const minX = Math.min(...xs) - NODE_W;
+    const maxX = Math.max(...xs) + NODE_W;
+    const minY = Math.min(...ys) - NODE_H;
+    const maxY = Math.max(...ys) + NODE_H * 2;
+    const spanX = maxX - minX;
+    const spanY = maxY - minY;
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+    
+    // Calculate scale to fit all highlighted nodes in view, with padding
+    const padding = 60;
+    const fitScaleX = (viewW - padding * 2) / spanX;
+    const fitScaleY = (H - padding * 2) / spanY;
+    const fitScale = Math.min(fitScaleX, fitScaleY, 1.0); // don't zoom in beyond 1.0
+    const finalScale = Math.max(fitScale, 0.25); // don't go too small
+    
+    scale = finalScale;
+    panX = viewCX - midX * scale;
+    panY = viewCY - midY * scale;
     _0x9c0d();
   }
 
